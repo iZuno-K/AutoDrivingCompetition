@@ -1,36 +1,91 @@
 <?xml version="1.0"?>
 <launch>
-    <!-- ToDo : modify launch files and add ROS nodes developed by you -->
-    <include file="$(find lidar_localizer)/launch/ndt_matching.launch">
-        <arg name="method_type" default="0"/>
-        <arg name="use_odom" default="false"/>
-        <arg name="imu_upside_down" default="false"/>
-        <arg name="imu_topic" default="/imu_raw"/>
-        <arg name="get_height" default="true"/>
+    <!-- LOCALIZE ........................................................................................ -->
+    <!-- localization from lidar -->
+    <include file="$(find lidar_localizer)/launch/ndt_matching.launch">  <!-- pcl_generic=0, pcl_anh=1, pcl_anh_gpu=2, pcl_openmp=3 -->
+        <arg name="method_type" default="2"/> <!-- default: 0 -->
+        <arg name="use_odom" default="false"/>  <!-- default: false -->
+        <arg name="use_imu" default="true" />  <!-- default: false -->
+        <arg name="imu_upside_down" default="false"/> 
+        <arg name="imu_topic" default="/imu_raw"/> 
+        <arg name="get_height" default="true"/> 
+        <arg name="use_gnss" default="1" />  <!-- default: 1 -->
+    </include>
+    <!-- Localizer params is already published in aichallenge_bringup_final.launch-->
+    <!-- initial pose is already published in aichallenge_bringup_final.launch -->
+
+    <!-- RECOGNITION ............................................................................... -->
+    <!-- /top_velodyne/points_raw ... down sampling ... filterd_points -->
+    <include file="$(find mypoints_downsampler)/launch/points_downsample.launch">
+        <arg name="points_topic" default="/top_velodyne/points_raw"/>
+    </include>
+    <!-- to avoid self-detection, set min_measurement_range 3. voxel_leaf_size > 0.1 enables voxel grid down sampling -->
+    <node pkg="rostopic" type="rostopic" name="vgf_config" args="pub /config/voxel_grid_distance_filter mypoints_downsampler/ConfigVoxelGridDistanceFilter
+    '{ voxel_leaf_size: 0.1, measurement_range: 180, min_measurement_range: 3}' " output="screen" />]
+    <!-- ground filter -->
+    <include file="$(find points_preprocessor)/launch/compare_map_filter.launch">
+        <arg name="input_point_topic" default="/filtered_points" />
+        <arg name="input_map_topic" default="/points_map" />
+        <arg name="output_match_topic" default="/points_ground" />
+        <arg name="output_unmatch_topic" default="/points_no_ground" />
+    </include>
+     <!-- <include file="$(find points_preprocessor)/launch/ray_ground_filter.launch">
+        <arg name="input_point_topic" default="/top_velodyne/points_raw" />  
+        <arg name="base_frame" default="base_link" /> 
+        <arg name="no_ground_point_topic" default="/points_no_ground" />
+        <arg name="ground_point_topic" default="/points_ground" />
+    </include> -->
+    <!-- obstacle recognition (pub:detection/lidar_detector/objects)-->
+    <include file="$(find lidar_euclidean_cluster_detect)/launch/lidar_euclidean_cluster_detect.launch" >
+        <arg name="points_node" default="/top_velodyne/points_raw" />
+        <arg name="use_gpu" default="true" />
+    </include>
+    <!-- naieve motion predictor -->
+    <include file="$(find naive_motion_predict)/launch/naive_motion_predict.launch">
+        <arg name="interval_sec" default="0.1"/>
+        <arg name="num_prediction" default="10"/>
+        <arg name="sensor_height" default="2.0"/>
+        <arg name="filter_out_close_object_threshold" default="1.5"/>
+        <arg name="input_topic" default="detection/lidar_detector/objects"/>
+        <!-- TODO etectedObjectAray maybe fusion or lidar object detection is required -->
+        <remap from="/detection/objects" to="$(arg input_topic)"/>
+    </include>
+    <!-- cost map -->
+    <include file="$(find costmap_generator)/launch/costmap_generator_lanelet2.launch">
+        <!-- node parameters -->
+        <arg name="objects_input" default="/prediction/motion_predictor/objects" />
+        <arg name="points_input" default="/points_no_ground" />
     </include>
 
+    <!-- PLANNING ...................................................................................... -->
+    <include file="$(find waypoint_planner)/launch/astar_avoid.launch">
+        <arg name="enable_avoidance" default="true" />
+        <arg name="avoid_start_velocity" default="11.0" />
+    </include>
+    
+    <!-- BASIC LANE FOLLOWING RULES AND WAYPOINTS ....................................................... -->
     <include file="$(find lane_planner)/launch/lane_rule_option.launch"/>
     <include file="$(find lane_planner)/launch/lane_select.launch"/>
     <node pkg="lane_planner" type="lane_stop" name="lane_stop"/>
-
     <include file="$(find autoware_connector)/launch/vel_pose_connect.launch">
         <arg name="topic_pose_stamped" default="/ndt_pose"/>
         <arg name="topic_twist_stamped" default="/estimate_twist"/>
     </include>
-    
-    <!-- ToDo : modify launch files and add ROS nodes developed by you -->
     <include file="$(find waypoint_maker)/launch/waypoint_loader.launch">
         <arg name="multi_lane_csv" default="$(find aichallenge_bringup)/data/saved_waypoints.csv"/>
         <arg name="load_csv" default="true"/>
+        <arg name="replanning_mode" default="true" />
     </include>
 
+    <!-- CONTROL (FOLLOW TRAJECTORY) .............................................................................. -->
     <include file="$(find pure_pursuit)/launch/pure_pursuit.launch">
         <arg name="publishes_for_steering_robot" default="true"/>
+        <arg name="lookahead_ratio" default="1.0"/>
+        <arg name="minimum_lookahead_distance" default="3.0"/>
     </include>
-    <include file="$(find waypoint_planner)/launch/astar_avoid.launch"/>
-    <include file="$(find waypoint_planner)/launch/velocity_set_option.launch"/>
-    <include file="$(find twist_filter)/launch/twist_filter.launch" />
-
-
-    <!-- Example Launch files Ends(Just following example waypoints) -->
+    <!-- <include file="$(find waypoint_planner)/launch/velocity_set_option.launch"/> -->
+    <include file="$(find waypoint_planner)/launch/velocity_set_lanelet2.launch" />
+    <include file="$(find twist_filter)/launch/twist_filter.launch" >
+      <arg name="lateral_accel_limit" default="20.0" />
+    </include>
 </launch>
