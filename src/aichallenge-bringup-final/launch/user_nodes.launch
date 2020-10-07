@@ -19,9 +19,9 @@
     <include file="$(find mypoints_downsampler)/launch/points_downsample.launch">
         <arg name="points_topic" default="/top_velodyne/points_raw"/>
     </include>
-    <!-- to avoid self-detection, set min_measurement_range 3. voxel_leaf_size > 0.1 enables voxel grid down sampling -->
+    <!-- to avoid self-detection, set min_measurement_range 4. voxel_leaf_size > 0.1 enables voxel grid down sampling -->
     <node pkg="rostopic" type="rostopic" name="vgf_config" args="pub /config/voxel_grid_distance_filter mypoints_downsampler/ConfigVoxelGridDistanceFilter
-    '{ voxel_leaf_size: 0.1, measurement_range: 180, min_measurement_range: 3}' " output="screen" />]
+    '{ voxel_leaf_size: 0.01, measurement_range: 180, min_measurement_range: 4}' " output="screen" />]
     <!-- ground filter -->
     <include file="$(find points_preprocessor)/launch/compare_map_filter.launch">
         <arg name="input_point_topic" default="/filtered_points" />
@@ -37,7 +37,7 @@
     </include> -->
     <!-- obstacle recognition (pub:detection/lidar_detector/objects)-->
     <include file="$(find lidar_euclidean_cluster_detect)/launch/lidar_euclidean_cluster_detect.launch" >
-        <arg name="points_node" default="/top_velodyne/points_raw" />
+        <arg name="points_node" default="/filtered_points" />
         <arg name="use_gpu" default="true" />
     </include>
     <!-- naieve motion predictor -->
@@ -54,7 +54,11 @@
     <include file="$(find costmap_generator)/launch/costmap_generator_lanelet2.launch">
         <!-- node parameters -->
         <arg name="objects_input" default="/prediction/motion_predictor/objects" />
+        <arg name="use_objects_convex_hull" default="true" />
         <arg name="points_input" default="/points_no_ground" />
+        <arg name="maximum_lidar_height_thres" default="0.3" />
+        <!-- default minimu = -2.2 -->
+        <arg name="minimum_lidar_height_thres" default="-2/2" />
     </include>
 
     <!-- PLANNING ...................................................................................... -->
