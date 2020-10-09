@@ -210,6 +210,9 @@ add_pedestrian_with_trigger('Stephen', 105, 0)
 add_static_car(1, 158, 24.5, 90)
 add_static_car(1, 180, 35, 270)
 add_static_car(1, 196, 50, 180)
+# 静止車両
+add_static_car(0, 200, -1.5, 0)
+add_static_car(0, 220, -1.5, 0)
 ### main end ####
 
 sim.run(time_limit = 300.0)

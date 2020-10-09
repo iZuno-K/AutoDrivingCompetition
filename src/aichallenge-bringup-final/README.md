@@ -99,7 +99,8 @@ Web UIのSimulationタブを開いてシミュレーションを選択しレン�
 
 シナリオ
 ```
-roscd aichallnge_bringup/scenario
+roscd aichallenge_bringup
+/scenario
 python3 scenario.train.py
 ```
 
