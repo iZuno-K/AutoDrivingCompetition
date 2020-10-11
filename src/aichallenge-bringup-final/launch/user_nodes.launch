@@ -32,12 +32,12 @@
 
     <!-- obstacle recognition (pub:detection/lidar_detector/objects)-->
     <include file="$(find lidar_euclidean_cluster_detect)/launch/lidar_euclidean_cluster_detect.launch" >
-        <arg name="points_node" default="/filtered_points" />
+        <arg name="points_node" default="/filtered_points"/>
         <arg name="use_gpu" default="true" />
           <arg name="remove_ground" default="true" />
         <arg name="downsample_cloud" default="false" /> <!-- Apply VoxelGrid Filter with the value given by "leaf_size"-->
         <arg name="leaf_size" default="0.1" /><!-- Voxel Grid Filter leaf size-->
-        <arg name="cluster_size_min" default="3" /><!-- Minimum number of points to consider a cluster as valid-->
+        <arg name="cluster_size_min" default="20" /><!-- Minimum number of points to consider a cluster as valid-->
         <arg name="cluster_size_max" default="10000" /><!-- Maximum number of points to allow inside a cluster-->
         <arg name="sync" default="false" />
         <arg name="use_diffnormals" default="false" />
@@ -57,12 +57,13 @@
     <!-- vision -->
     <include file="$(find vision_darknet_detect)/launch/vision_yolo3_detect.launch">
         <arg name="gpu_device_id" default="0"/>  
-        <arg name="score_threshold" default="0.30"/>
+        <arg name="score_threshold" default="0.50"/>
         <arg name="nms_threshold" default="0.450"/>
         <arg name="network_definition_file" default="$(find vision_darknet_detect)/darknet/cfg/yolov3.cfg"/>
         <arg name="pretrained_model_file" default="$(find aichallenge_bringup)/data/yolov3.weights"/>
         <arg name="names_file" default="$(find vision_darknet_detect)/darknet/cfg/coco.names"/>
-        <arg name="image_src" default="/front_camera/image_raw"/>
+        <arg name="camera_id" default="/front_camera"/>
+        <arg name="image_src" default="/image_raw"/>
     </include>
 
     <!-- calibration between lidar and camera for fusion -->
@@ -83,12 +84,12 @@
     <include file="$(find range_vision_fusion)/launch/range_vision_fusion.launch">
         <arg name="detected_objects_range" default="/detection/lidar_detector/objects"/>
         <arg name="detected_objects_vision" default="/detection/image_detector/objects"/>
-        <arg name="camera_info_src" default="/camera_info"/>
+        <arg name="camera_info_src" default="/front_camera/camera_info"/>
         <arg name="min_car_dimensions" default="[3,2,2]"/>
         <arg name="min_person_dimensions" default="[1,2,1]"/>
         <arg name="min_truck_dimensions" default="[4,2,2]"/>
         <arg name="sync_topics" default="false"/>
-        <arg name="overlap_threshold" default="0.5"/>
+        <arg name="overlap_threshold" default="0.9"/>
         <arg name="use_vector_map" default="false"/>
         <arg name="namespace" default="/detection/fusion_tools"/>
     </include>
@@ -121,7 +122,7 @@
         <arg name="interval_sec" default="0.1"/>
         <arg name="num_prediction" default="10"/>
         <arg name="sensor_height" default="2.0"/>
-        <arg name="filter_out_close_object_threshold" default="1.5"/>
+        <arg name="filter_out_close_object_threshold" default="4"/>
         <arg name="input_topic" default="/detection/objects"/>
         <!-- TODO etectedObjectAray maybe fusion or lidar object detection is required -->
         <remap from="/detection/objects" to="$(arg input_topic)"/>
@@ -135,7 +136,7 @@
         <arg name="maximum_lidar_height_thres" default="0.3" />
         <!-- default minimu = -2.2 -->
         <arg name="minimum_lidar_height_thres" default="-2.2" />
-        <arg name="grid_resolution" default="0.5" />
+        <arg name="grid_resolution" default="0.8" />
         <arg name="grid_length_x" default="50" />
         <arg name="grid_length_y" default="30" />
     </include>
@@ -143,8 +144,8 @@
     <!-- PLANNING ...................................................................................... -->
     <include file="$(find waypoint_planner)/launch/astar_avoid.launch">
         <arg name="enable_avoidance" default="true" />
-        <arg name="avoid_start_velocity" default="15.0" />
-        <arg name="search_waypoints_delta" default="8" />
+        <arg name="avoid_start_velocity" default="11.0" />
+        <arg name="search_waypoints_delta" default="4" />
         <arg name="search_waypoints_size" default="80" />
     </include>
     
@@ -163,11 +164,11 @@
     </include>
 
     <!-- CONTROL (FOLLOW TRAJECTORY) .............................................................................. -->
-    <include file="$(find pure_pursuit)/launch/pure_pursuit.launch">
+    <!-- <include file="$(find pure_pursuit)/launch/pure_pursuit.launch">
         <arg name="publishes_for_steering_robot" default="true"/>
         <arg name="lookahead_ratio" default="2.0"/>
         <arg name="minimum_lookahead_distance" default="4.0"/>
-    </include>
+    </include> -->
     <!-- <include file="$(find waypoint_planner)/launch/velocity_set_option.launch"/> -->
     <include file="$(find waypoint_planner)/launch/velocity_set_lanelet2.launch" />
     <include file="$(find twist_filter)/launch/twist_filter.launch" >

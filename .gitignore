@@ -4,3 +4,5 @@
 /log/
 tmp.txt
 *.svg
+*.gv
+*.pdf
