@@ -16,13 +16,16 @@ _autowareを"~/autoware.ai"にセットアップした場合_
 source ~/autoware.ai/install/local_setup.bash
 
 mkdir -p ~/aichallenge_ws/src  
-cd ~/aichallenge_ws
+cd ~/aichallenge_ws  
 colcon build  
 cd src  
 git lfs clone https://github.com/aichallenge2020/aichallenge-bringup-final.git  
 cd ../  
 colcon build
 ```
+_※ オンライン評価環境でのビルド手順に関しては本レポジトリ内にあるDockerfileを御参照下さい_  
+  
+
 ### シミュレータのダウンロードと起動
 下記リンクからシミュレータのバイナリをダウンロード  
 https://www.jsae.or.jp/jaaic/docu/online_final/scenarios.zip 
@@ -92,6 +95,9 @@ rvizのGUIが表示されたら左上のFileからOpen Configを選択し、aich
 https://github.com/lgsvl/PythonAPI
 この記述に従ってPythonAPIをインストール
 
+どのbranchを使用されても動作は致しますが  
+本競技にて使用するシナリオに関しましては2020.05(183ccdcb1d66fb827c074aaadacc012ec33da306)で動作を確認しております。
+
 ### シミュレータの操作
 Web UIのSimulationタブを開いてシミュレーションを選択しレンチのボタンをクリック、API Onlyにチェックを入れる
 ![画面](/image/simulator_scenario.png)
@@ -99,10 +105,25 @@ Web UIのSimulationタブを開いてシミュレーションを選択しレン�
 
 シナリオ
 ```
-roscd aichallenge_bringup
-/scenario
+roscd aichallnge_bringup/scenario
 python3 scenario.train.py
 ```
+
+### 参加者が作成するパッケージに関して
+
+シナリオを遂行するパッケージに関しては
+aichallenge_ws以下でcolcon buildを行い、buildが完了する構成を取って頂きますようお願い致します。  
+例:  
+```
+aichallenge_ws/src  
+                 |  
+                 +--- aichallenge-bringup-final ... 本レポジトリのROSパッケージ  
+                 |  
+                 +--- user_package ... 参加者が実装したROSパッケージ（ここでのパッケージ名は適当）  
+```
+又、作成したパッケージに関しましては  
+aichallenge-bringup-final/launch/user_nodes.launch  
+から呼び出す様、launchファイルの適宜改修をお願い致します。  
 
 ### 点数の算出
 
@@ -114,6 +135,7 @@ python3 scenario.train.py
 シミュレータの操作を開始した後に
 ```
 source ~/autoware.ai/install/local_setup.bash
+source aichallenge_ws/install/local_setup.bash
 rostopic echo /aichalle/score
 ```
 topicをechoさせる事で確認を取る事が出来ます。
@@ -214,6 +236,7 @@ steering_angleに関しては-1から1の値をfloatで入力してください�
 linear_accelerationはアクセル・ブレーキの入力値を-1~1の範囲で正規化したものとなります。
 
 正の値を入力した場合加速、負の値を入力した場合減速します。  
+
 
 # オンライン評価環境にファイルをアップする手順
 
