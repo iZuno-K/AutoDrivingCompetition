@@ -139,13 +139,7 @@
             "MaxDistance": 1000,
             "Topic": "/front_camera/image/compressed",
             "Frame": "front_camera_optical_link",
-            "Distorted": true,
-            "DistortionParameters": [
-                -0.1266,
-                0.152594,
-                0.002432,
-                -0.001244
-            ]
+            "Distorted": true
         },
         "transform": {
             "x": 0,
