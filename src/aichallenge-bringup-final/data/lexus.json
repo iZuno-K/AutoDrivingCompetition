@@ -138,7 +138,8 @@
             "MinDistance": 0.1,
             "MaxDistance": 1000,
             "Topic": "/front_camera/image/compressed",
-            "Frame": "front_camera_optical_link"
+            "Frame": "front_camera_optical_link",
+            "Distorted": true
         },
         "transform": {
             "x": 0,
