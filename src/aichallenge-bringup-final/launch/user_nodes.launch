@@ -33,7 +33,7 @@
     </include>
     <!-- to avoid self-detection, set min_measurement_range 4. voxel_leaf_size > 0.1 enables voxel grid down sampling -->
     <node pkg="rostopic" type="rostopic" name="vgf_config" args="pub /config/voxel_grid_distance_filter mypoints_downsampler/ConfigVoxelGridDistanceFilter
-    '{ voxel_leaf_size: 0.1, measurement_range: 180, min_measurement_range: 4}' " output="screen" />]
+    '{ voxel_leaf_size: 0.01, measurement_range: 180, min_measurement_range: 4}' " output="screen" />]
     <!-- ground filter -->
     <include file="$(find points_preprocessor)/launch/compare_map_filter.launch">
         <arg name="input_point_topic" default="/filtered_points" />
@@ -44,7 +44,7 @@
 
     <!-- obstacle recognition (pub:detection/lidar_detector/objects)-->
     <include file="$(find lidar_euclidean_cluster_detect)/launch/lidar_euclidean_cluster_detect.launch" >
-        <arg name="points_node" default="/filtered_points"/>
+        <arg name="points_node" default="/filtered_points" />
         <arg name="use_gpu" default="true" />
         <arg name="remove_ground" default="true" />
         <arg name="downsample_cloud" default="false" /> <!-- Apply VoxelGrid Filter with the value given by "leaf_size"-->
@@ -164,11 +164,11 @@
     </include>
 
     <!-- CONTROL (FOLLOW TRAJECTORY) .............................................................................. -->
-    <!-- <include file="$(find pure_pursuit)/launch/pure_pursuit.launch">
+    <include file="$(find pure_pursuit)/launch/pure_pursuit.launch">
         <arg name="publishes_for_steering_robot" default="true"/>
-        <arg name="lookahead_ratio" default="2.0"/>
-        <arg name="minimum_lookahead_distance" default="4.0"/>
-    </include> -->
+        <arg name="lookahead_ratio" default="1.0"/>
+        <arg name="minimum_lookahead_distance" default="3.0"/>
+    </include>
     <!-- <include file="$(find waypoint_planner)/launch/velocity_set_option.launch"/> -->
     <include file="$(find waypoint_planner)/launch/velocity_set_lanelet2.launch" />
     <include file="$(find twist_filter)/launch/twist_filter.launch" >
