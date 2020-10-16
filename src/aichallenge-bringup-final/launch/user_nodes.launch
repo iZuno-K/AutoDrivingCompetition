@@ -66,7 +66,7 @@
         <arg name="use_vector_map" default="false" />
         <arg name="wayarea_gridmap_layer" default="wayarea" />
 
-        <arg name="output_frame" default="velodyne" />
+        <arg name="output_frame" default="top_velodyne_link" />
 
         <arg name="remove_points_upto" default="0.0" />
 
@@ -128,6 +128,7 @@
     </include>
     <!-- cost map -->
     <include file="$(find costmap_generator)/launch/costmap_generator_lanelet2.launch">
+        <arg name="lidar_frame" default="top_velodyne_link"/>
         <!-- node parameters -->
         <arg name="objects_input" default="/prediction/motion_predictor/objects" />
         <arg name="use_objects_box" default="true" />
