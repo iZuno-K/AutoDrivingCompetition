@@ -49,7 +49,7 @@
         <arg name="remove_ground" default="true" />
         <arg name="downsample_cloud" default="false" /> <!-- Apply VoxelGrid Filter with the value given by "leaf_size"-->
         <arg name="leaf_size" default="0.1" /><!-- Voxel Grid Filter leaf size-->
-        <arg name="cluster_size_min" default="3" /><!-- Minimum number of points to consider a cluster as valid default 20-->
+        <arg name="cluster_size_min" default="10" /><!-- Minimum number of points to consider a cluster as valid default 20-->
         <arg name="cluster_size_max" default="100000" /><!-- Maximum number of points to allow inside a cluster-->
         <arg name="sync" default="false" />
         <arg name="use_diffnormals" default="false" />
@@ -136,7 +136,7 @@
         <arg name="maximum_lidar_height_thres" default="0.3" />
         <!-- default minimu = -2.2 -->
         <arg name="minimum_lidar_height_thres" default="-2/2" />
-        <arg name="grid_resolution" default="0.1" />
+        <arg name="grid_resolution" default="0.2" />
         <arg name="grid_length_x" default="50" />
         <arg name="grid_length_y" default="30" />
     </include>
