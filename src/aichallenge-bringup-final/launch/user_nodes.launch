@@ -184,4 +184,7 @@
     
     <!-- rviz -->
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aichallenge_bringup)/data/aichallenge.rviz" />
+
+    <!-- Shut up pure_pursuit node -->
+    <node type="rosservice" name="pure_pursuit_log" pkg="rosservice" args="call /pure_pursuit/set_logger_level ros.pure_pursuit ERROR" />
 </launch>
