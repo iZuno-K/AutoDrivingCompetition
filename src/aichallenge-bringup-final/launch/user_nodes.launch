@@ -150,8 +150,8 @@
         <arg name="use_objects_convex_hull" default="false" />
         <arg name="points_input" default="/points_no_ground" />
         <arg name="maximum_lidar_height_thres" default="0.3" />
-        <!-- default minimu = -2.2 -->
         <arg name="minimum_lidar_height_thres" default="-2.2" />
+        <arg name="expand_polygon_size" default="2.0" />
         <arg name="grid_resolution" default="0.2" />
         <arg name="grid_length_x" default="50" />
         <arg name="grid_length_y" default="30" />
