@@ -86,7 +86,7 @@
         <arg name="input_topic" default="/filtered_points"/>
         <arg name="baselink_support" default="true"/>
         <arg name="reproduce_result_mode" default="false"/>
-        <arg name="score_threshold" default="0.3" />
+        <arg name="score_threshold" default="0.2" />
         <arg name="nms_overlap_threshold" default="0.5" />
         <arg name="pfe_onnx_file" default="$(find aichallenge_bringup)/data/pfe.onnx"/>
         <arg name="rpn_onnx_file" default="$(find aichallenge_bringup)/data/rpn.onnx"/>
@@ -132,7 +132,7 @@
 
     <!-- naieve motion predictor -->
     <include file="$(find naive_motion_predict)/launch/naive_motion_predict.launch">
-        <arg name="interval_sec" default="0.1"/>
+        <arg name="interval_sec" default="0.4"/>
         <arg name="num_prediction" default="10"/>
         <arg name="sensor_height" default="2.0"/>
         <arg name="filter_out_close_object_threshold" default="1.5"/>
@@ -152,8 +152,8 @@
         <arg name="maximum_lidar_height_thres" default="0.3" />
         <arg name="minimum_lidar_height_thres" default="-2.2" />
         <arg name="expand_polygon_size" default="2.0" />
-        <arg name="grid_resolution" default="0.2" />
-        <arg name="grid_length_x" default="50" />
+        <arg name="grid_resolution" default="1.0" />
+        <arg name="grid_length_x" default="55" />
         <arg name="grid_length_y" default="30" />
     </include>
 
@@ -182,13 +182,13 @@
     <!-- CONTROL (FOLLOW TRAJECTORY) .............................................................................. -->
     <include file="$(find pure_pursuit)/launch/pure_pursuit.launch">
         <arg name="publishes_for_steering_robot" default="true"/>
-        <arg name="lookahead_ratio" default="2.0"/>
-        <arg name="minimum_lookahead_distance" default="4.0"/>
+        <arg name="lookahead_ratio" default="1.3"/>
+        <arg name="minimum_lookahead_distance" default="3.0"/>
     </include>
     <!-- <include file="$(find waypoint_planner)/launch/velocity_set_option.launch"/> -->
     <include file="$(find waypoint_planner)/launch/velocity_set_lanelet2.launch" />
     <include file="$(find twist_filter)/launch/twist_filter.launch" >
-      <arg name="lateral_accel_limit" default="30.0" />
+      <arg name="lateral_accel_limit" default="20.0" />
     </include>
     
     <!-- rviz: TODO remove these lines below before submitting the online evaluator -->

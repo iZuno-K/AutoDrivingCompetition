@@ -12,6 +12,7 @@ Panels:
         - /PointCloud21/Autocompute Value Bounds1
         - /PointCloud22/Autocompute Value Bounds1
         - /PointCloud23/Autocompute Value Bounds1
+        - /MarkerArray2
       Splitter Ratio: 0.642276406288147
     Tree Height: 913
   - Class: rviz/Selection
@@ -860,25 +861,21 @@ Visualization Manager:
       Unreliable: false
       Value: false
       Visibility:
-        "": true
         Control:
           "": true
           Value: true
         Grid: true
         Localization:
-          "": true
+          Current Pose: true
+          EKF Pose: true
+          NDT Pose: true
           Value: true
         Map:
-          ADAS Map: true
-          Lanelet2 Map: true
-          Points Map: true
+          "": true
           Value: true
         MarkerArray: true
         Perception:
-          Clustered Points: true
-          Occupancy Grid Map: true
-          Predicted Path: true
-          Tracked Objects: true
+          "": true
           Value: true
         Planning:
           "":
@@ -917,7 +914,7 @@ Visualization Manager:
       Value: false
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /detection/object_tracker/objects_markers
+      Marker Topic: /prediction/motion_predictor/objects_markers
       Name: MarkerArray
       Namespaces:
         {}
@@ -993,5 +990,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 2495
-  X: 10
-  Y: 74
+  X: 9
+  Y: 52
