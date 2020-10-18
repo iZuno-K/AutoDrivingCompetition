@@ -6,6 +6,16 @@
 cd aichallenge-bringup-final/data/
 wget https://pjreddie.com/media/files/yolov3.weights
 ```
+
+### 
+- Usage
+```
+$ cd aichallenge-bringup-final/data/
+$ wget https://github.com/k0suke-murakami/kitti_pretrained_point_pillars/raw/master/pfe.onnx
+$ wget https://github.com/k0suke-murakami/kitti_pretrained_point_pillars/raw/master/rpn.onnx
+
+```
+
 ### Others
 - ndt_matching
   - Localization with LiDAR
