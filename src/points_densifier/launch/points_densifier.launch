@@ -1,0 +1,14 @@
+<!-- -->
+<launch>
+  <arg name="input_topic" default="/points_in" />
+  <arg name="output_topic" default="/points_densified" />
+  <arg name="output_frame_id" default="velodyne" />
+  <arg name="fixed_frame_id" default="world" />
+
+  <node pkg="points_densifier" type="points_densifier" name="points_densifier" output="screen">
+    <param name="output_frame_id" value="$(arg output_frame_id)" />
+    <param name="fixed_frame_id" value="$(arg fixed_frame_id)" />
+    <remap from="/points_in" to="$(arg input_topic)" />
+    <remap from="/points_densified" to="$(arg output_topic)" />
+  </node>
+</launch>
