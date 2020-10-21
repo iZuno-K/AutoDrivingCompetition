@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+#!/usr/bin/env python3
+
 import os
 import lgsvl
 import math
@@ -32,13 +34,19 @@ def project(point):
     hit = sim.raycast(point, lgsvl.Vector(0, -1, 0), layer_mask)
     return copy.deepcopy(hit.point)
 
-def add_ego_car():
+def add_ego_car(offset_forward=0, offset_right=0, up_weight=0):
     spawns = sim.get_spawn()
     forward = lgsvl.utils.transform_to_forward(spawns[0])
     right = lgsvl.utils.transform_to_right(spawns[0])
+    up = lgsvl.utils.transform_to_up(spawns[0])
     state = lgsvl.AgentState()
     state.transform = spawns[0]
-    print("REWRGWB")
+    state.transform.position = project(spawns[0].position + offset_forward * forward + offset_right * right + 5 * up * up_weight)
+    if (state.transform.position == state.transform.position):
+        print('Self Transform')
+        pass
+
+    print(state.transform.position)
     a = sim.add_agent(vehicle_name,
                       lgsvl.AgentType.EGO, state)
 
@@ -51,7 +59,6 @@ def add_ego_car():
     return a
 
 def get_ground_point(spawn_id, offset):
-    # not redefine spawns
     forward_offset, right_offset = offset
 
     forward = lgsvl.utils.transform_to_forward(spawns[spawn_id])
@@ -61,7 +68,6 @@ def get_ground_point(spawn_id, offset):
     return project(spawns[spawn_id].position + forward_offset * forward + right_offset * right + 5 * up)
 
 def get_angle(spawn_id, offset):
-    # not redefine spawns
     rotation = spawns[spawn_id].rotation
     angle = copy.deepcopy(rotation)
     angle.y += offset
@@ -75,7 +81,6 @@ def add_line_loop_car_with_trigger(car_type, spawn_id, offsets, trigger_distance
     3. back to the offsets[0] through the underground of offsets[n-1] -> that of offset[0]
     4. play again from 2
     """
-    # not redefine spawns
     rotation = spawns[spawn_id].rotation
     angle = copy.deepcopy(rotation)
     angle.y += angle_offset
@@ -114,7 +119,6 @@ def add_line_loop_car_with_underground_trigger(car_type, spawn_id, trigger_offse
     3. back to the offsets[0] through the underground of offsets[n-1] -> that of offset[0]
     4. play again from 2
     """
-    # not redefine spawns
     rotation = spawns[spawn_id].rotation
     angle = copy.deepcopy(rotation)
     angle.y += angle_offset
@@ -192,7 +196,7 @@ def change_all_signals_green():
 scenario_id = 'train'
 
 # 自車位置、信号機は同じです。
-add_ego_car()
+add_ego_car(50, 0, 0)
 change_all_signals_green()
 # car1
 add_line_loop_car_with_trigger('Sedan', 1, [(165, 8), (250, 12)], 80, 0, angle_offset=0, speed=8)
