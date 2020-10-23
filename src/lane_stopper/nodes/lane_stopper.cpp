@@ -59,10 +59,10 @@ bool LaneStopper::stopIntersection1(const autoware_msgs::DetectedObjectArray &in
             tf::poseTFToMsg(convertMatrix * tmp, obj.pose);
             // 対向車線に車がいたら　
             if (objectInIncomingLane(obj)) {
-                ROS_ERROR("[%s] Object in the incomming lane.", __APP_NAME__);
+                ROS_INFO("[%s] Object in the incomming lane.", __APP_NAME__);
                 // 自車が交差点1にいるとき
                 if (inIntersection1(mycarpose)) {
-                    if (dist(obj.pose, mycarpose.pose) < STOP_DISTSTANCE) {
+                    if (dist(obj.pose, mycarpose.pose) < stop_distance_) {
                         // make_stop_waypoints();
                         ROS_ERROR("[%s] Stop at Intersection1.", __APP_NAME__);
                         return true;
@@ -72,7 +72,7 @@ bool LaneStopper::stopIntersection1(const autoware_msgs::DetectedObjectArray &in
                 else if (inIntersection2(mycarpose)) {
                     // 対向車線上の避けるべきいちに対向車がきていたら
                     if (objectIncomingIntersection2(obj)) {
-                        if (dist(obj.pose, mycarpose.pose) < STOP_DISTSTANCE) {
+                        if (dist(obj.pose, mycarpose.pose) < stop_distance_) {
                             // make_stop_waypoints();
                             ROS_ERROR("[%s] Stop at Intersection2.", __APP_NAME__);
                             return true;
@@ -83,7 +83,7 @@ bool LaneStopper::stopIntersection1(const autoware_msgs::DetectedObjectArray &in
         }
     }
     catch (tf::TransformException &ex) {
-        ROS_ERROR("[%s] %s", __APP_NAME__, ex.what());
+        ROS_WARN("[%s] %s", __APP_NAME__, ex.what());
         return false;
     }
     return false;
@@ -93,21 +93,31 @@ void LaneStopper::SyncedDetectionsCallback(const autoware_msgs::DetectedObjectAr
                                            const geometry_msgs::PoseStamped::ConstPtr& mycarpose) {
     bool flag;
     flag = LaneStopper::stopIntersection1(*input, *mycarpose);
-    if (flag) ROS_ERROR("[%s] flag is true.", __APP_NAME__);
-    if (inIntersection1(*mycarpose)) ROS_ERROR("[%s] At Intersection1.", __APP_NAME__);
-    if (inIntersection2(*mycarpose)) ROS_ERROR("[%s] At Intersection2.", __APP_NAME__);
+    if (flag) {
+        ROS_ERROR("[%s] Brake flag is true.", __APP_NAME__);
+    }
+    std_msgs::Bool msg;
+    msg.data = flag;
+    bool_publisher.publish(msg);
+    // if (inIntersection1(*mycarpose)) ROS_ERROR("[%s] At Intersection1.", __APP_NAME__);
+    // if (inIntersection2(*mycarpose)) ROS_ERROR("[%s] At Intersection2.", __APP_NAME__);
 }
 
-LaneStopper::LaneStopper() {}
+LaneStopper::LaneStopper() : node_handle_(), private_node_handle_("~"), tf_listener_() {
+    private_node_handle_.param("stop_distance", stop_distance_, 20.0);
+    private_node_handle_.param("objects_topic", objects_topic_, std::string("/detection/lidar_detector/objects"));
+    private_node_handle_.param("current_pose_topic", pose_topic_, std::string("/current_pose"));
+}
 
 void LaneStopper::run() {
-    objectArraySubscriber_ = new message_filters::Subscriber<autoware_msgs::DetectedObjectArray>(node_handle_, "/detection/lidar_detector/objects", 1);
-    poseSubscriber_ = new message_filters::Subscriber<geometry_msgs::PoseStamped>(node_handle_, "/current_pose", 1);
+    objectArraySubscriber_ = new message_filters::Subscriber<autoware_msgs::DetectedObjectArray>(node_handle_, objects_topic_, 1);
+    poseSubscriber_ = new message_filters::Subscriber<geometry_msgs::PoseStamped>(node_handle_, pose_topic_, 1);
     synchronizer_ = new message_filters::Synchronizer<SyncPolicyT>(SyncPolicyT(10), *objectArraySubscriber_, *poseSubscriber_);
     synchronizer_->registerCallback(boost::bind(&LaneStopper::SyncedDetectionsCallback, this, _1, _2));
 
     debug_publisher1 = node_handle_.advertise<autoware_msgs::DetectedObjectArray>("/debug/lane_stopper/DetectedObjectArray", 1);
     debug_publisher2 = node_handle_.advertise<geometry_msgs::PoseStamped>("/debug/lane_stopper/PoseStamped", 1);
+    bool_publisher = node_handle_.advertise<std_msgs::Bool>("/brake_flag", 1);
 
     ros::spin();
 } 

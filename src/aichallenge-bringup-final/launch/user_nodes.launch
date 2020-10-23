@@ -175,6 +175,9 @@
         <arg name="search_waypoints_size" default="100" />
     </include>
     <include file="$(find lane_stopper)/launch/lane_stopper.launch">
+        <arg name="objects_topic" default="/detection/lidar_detector/objects" />
+        <arg name="current_pose_topic" default="/current_pose" />
+        <arg name="stop_distance" default="20.0" />
     </include>
     
     <!-- BASIC LANE FOLLOW RULES AND WAYPOINTS ....................................................... -->
@@ -185,6 +188,7 @@
         <arg name="topic_pose_stamped" default="/ndt_pose"/>
         <arg name="topic_twist_stamped" default="/estimate_twist"/>
     </include>
+    <!-- pub: /brake_flag -->
     <include file="$(find waypoint_maker)/launch/waypoint_loader.launch">
         <arg name="multi_lane_csv" default="$(find aichallenge_bringup)/data/saved_waypoints.csv"/>
         <arg name="load_csv" default="true"/>

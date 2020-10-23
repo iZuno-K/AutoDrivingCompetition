@@ -1,6 +1,13 @@
 <!-- -->
 <launch>
+  <arg name="objects_topic" default="/detection/lidar_detector/objects" />
+  <arg name="current_pose_topic" default="/current_pose" />
+  <arg name="stop_distance" default="20" />
+
   <node pkg="lane_stopper" type="lane_stopper" name="lane_stopper" output="screen">
+    <param name="objects_topic" value="$(arg objects_topic)" />
+    <param name="current_pose_topic" value="$(arg current_pose_topic)" />
+    <param name="stop_distance" value="$(arg stop_distance)" />
   </node>
 </launch>
 

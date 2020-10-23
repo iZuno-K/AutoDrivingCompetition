@@ -6,8 +6,8 @@
 #include <message_filters/sync_policies/approximate_time.h>
 #include <autoware_msgs/DetectedObject.h>
 #include <autoware_msgs/DetectedObjectArray.h>
+#include "std_msgs/Bool.h"
 
-#define STOP_DISTSTANCE 15
 
 class LaneStopper {
     typedef message_filters::sync_policies::ApproximateTime<autoware_msgs::DetectedObjectArray,
@@ -20,6 +20,7 @@ class LaneStopper {
 
     ros::Publisher debug_publisher1;
     ros::Publisher debug_publisher2;
+    ros::Publisher bool_publisher;
 
     tf::TransformListener tf_listener_;
     
@@ -43,6 +44,10 @@ class LaneStopper {
                         -160.03610323652867,
                         -212.38461245157148
                         };
+
+    double stop_distance_;
+    std::string objects_topic_;
+    std::string pose_topic_;
     public:
         void run();
         LaneStopper();
