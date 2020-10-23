@@ -17,10 +17,17 @@
 #include "points_densifier.h"
 #define __APP_NAME__ "points_densifier"
 
+using namespace std;
 
 PointsDensifier::PointsDensifier() : node_handle_(), private_node_handle_("~"), tf_listener_(), index_(0), max_index_(0){
-    private_node_handle_.param("fixed_frame_id", fixed_frame_id_, std::string("world"));
-    private_node_handle_.param("output_frame_id", output_frame_id_, std::string("top_velodyne_link"));
+    private_node_handle_.param("fixed_frame_id", fixed_frame_id_, string("world"));
+    private_node_handle_.param("output_frame_id", output_frame_id_, string("top_velodyne_link"));
+    private_node_handle_.param("history_num", history_num_, 5);
+    
+    if (MAX_HISTORY_NUM < history_num_) {
+        ROS_WARN("[%s] history_num_(%d) decreaased into MAX_HISTORY_NUM(%d)", __APP_NAME__, history_num_, MAX_HISTORY_NUM);
+        history_num_ = MAX_HISTORY_NUM;
+    }
 
     cloud_subscriber_ = node_handle_.subscribe<PointCloudMsgT>("/points_in", 1, &PointsDensifier::pointcloud_callback, this);
     cloud_publisher_ = node_handle_.advertise<PointCloudMsgT>("/points_densified", 1);
@@ -38,7 +45,9 @@ void PointsDensifier::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg) {
             tf_listener_.waitForTransform(fixed_frame_id_, msg->header.frame_id, ros::Time(0), ros::Duration(1.0));
             pcl_ros::transformPointCloud(fixed_frame_id_, ros::Time(0), *cloud_history[index_], msg->header.frame_id, *cloud_history[index_], tf_listener_);
         }
-        for (size_t i = 0; i < (size_t)std::min(5, max_index_); ++i) {
+        cloud_history[index_]->header = pcl_conversions::toPCL(msg->header);
+        cloud_history[index_]->header.frame_id = fixed_frame_id_;
+        for (size_t i = 0; i < (size_t)min(history_num_, max_index_); ++i) {
             cloud_history[i]->header = cloud_history[index_]->header;
         }
     }
@@ -48,10 +57,11 @@ void PointsDensifier::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg) {
     }
 
     // merge points
-    for (size_t i = 0; i < (size_t)std::min(5, max_index_ + 1); ++i) {
+    for (size_t i = 0; i < (size_t)min(history_num_, max_index_ + 1); ++i) {
         *cloud_densified += *cloud_history[i];
     }
-    cloud_densified->header = cloud_history[index_]->header;;
+    cloud_densified->header = pcl_conversions::toPCL(msg->header);
+    cloud_densified->header.frame_id = fixed_frame_id_;
     try {
         tf_listener_.waitForTransform(output_frame_id_, fixed_frame_id_, ros::Time(0), ros::Duration(1.0));
         pcl_ros::transformPointCloud(output_frame_id_, ros::Time(0), *cloud_densified, fixed_frame_id_, *cloud_densified, tf_listener_);
@@ -62,9 +72,12 @@ void PointsDensifier::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg) {
     }
 
     index_++;
-    if (index_ >= 5) index_ = 0;
-    if (max_index_ < 5) max_index_++;
+    if (index_ >= history_num_) index_ = 0;
+    if (max_index_ < history_num_) max_index_++;
     // publsh points
+    cloud_densified->header = pcl_conversions::toPCL(msg->header);
+    cloud_densified->header.frame_id = output_frame_id_;
+
     cloud_publisher_.publish(cloud_densified);
 }
 

@@ -25,6 +25,11 @@
 #include <velodyne_pointcloud/point_types.h>
 #include <yaml-cpp/yaml.h>
 #include <algorithm>
+#include <vector>
+
+using namespace std;
+
+#define MAX_HISTORY_NUM 5
 
 class PointsDensifier
 {
@@ -44,9 +49,10 @@ private:
   std::string fixed_frame_id_;
   std::string output_frame_id_;
 
-  PointCloudT::Ptr cloud_history[5];
+  PointCloudT::Ptr cloud_history[MAX_HISTORY_NUM];
   int index_;
   int max_index_;
+  int history_num_;
 
   void pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1);
 };

@@ -1,0 +1,7 @@
+<!-- -->
+<launch>
+  <node pkg="lane_stopper" type="lane_stopper" name="lane_stopper" output="screen">
+  </node>
+</launch>
+
+
