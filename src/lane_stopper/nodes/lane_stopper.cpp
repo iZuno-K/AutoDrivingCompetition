@@ -117,9 +117,7 @@ void LaneStopper::run() {
 
     debug_publisher1 = node_handle_.advertise<autoware_msgs::DetectedObjectArray>("/debug/lane_stopper/DetectedObjectArray", 1);
     debug_publisher2 = node_handle_.advertise<geometry_msgs::PoseStamped>("/debug/lane_stopper/PoseStamped", 1);
-    bool_publisher = node_handle_.advertise<std_msgs::Bool>("/brake_flag", 10); // counterplan for subscribing miss
-
-    ros::spin();
+    bool_publisher = node_handle_.advertise<std_msgs::Bool>("/brake_flag", 10); // to avoid miss subscription
 } 
 
 int main(int argc, char **argv) {
