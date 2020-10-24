@@ -7,7 +7,8 @@ $ roslaunch aichallenge_bringup aichallenge_bringup.launch
 ### Scenario
 ```bash
 $ roscd aichallenge_bringup/scenario/
-$ python3 intersection1.py 
+$ python3 scenario.train.py 
+
 ```
 
 
@@ -19,5 +20,5 @@ $ roslaunch aichallenge_bringup intersection1.launch
 ### Scenario
 ```bash
 $ roscd aichallenge_bringup/scenario/
-$ python3 scenario.train.py 
+$ python3 intersection1.py 
 ```
