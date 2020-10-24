@@ -5,7 +5,7 @@
     <include file="$(find lidar_localizer)/launch/ndt_matching.launch">  <!-- pcl_generic=0, pcl_anh=1, pcl_anh_gpu=2, pcl_openmp=3 -->
         <arg name="method_type" default="2"/> <!-- default: 0 -->
         <arg name="use_odom" default="false"/>  <!-- default: false -->
-        <arg name="use_imu" default="true" />  <!-- default: false -->
+        <arg name="use_imu" default="false" />  <!-- default: false -->
         <arg name="imu_upside_down" default="false"/> 
         <arg name="imu_topic" default="/imu_raw"/> 
         <arg name="get_height" default="true"/> 
@@ -16,7 +16,7 @@
 
     <!-- RECOGNITION ............................................................................... -->
     <!-- vision -->
-    <!-- <include file="$(find vision_darknet_detect)/launch/vision_yolo3_detect.launch">
+    <include file="$(find vision_darknet_detect)/launch/vision_yolo3_detect.launch">
         <arg name="gpu_device_id" default="0"/>  
         <arg name="score_threshold" default="0.70"/>
         <arg name="nms_threshold" default="0.450"/>
@@ -25,7 +25,7 @@
         <arg name="names_file" default="$(find vision_darknet_detect)/darknet/cfg/coco.names"/>
         <arg name="camera_id" default="/front_camera"/>
         <arg name="image_src" default="/image_raw"/>
-    </include> -->
+    </include>
 
     
     <include file="$(find points_preprocessor)/launch/points_concat_filter.launch">
@@ -39,23 +39,34 @@
     </include>
     <!-- to avoid self-detection, set min_measurement_range 4. voxel_leaf_size > 0.1 enables voxel grid down sampling -->
     <node pkg="rostopic" type="rostopic" name="vgf_config" args="pub /config/voxel_grid_distance_filter mypoints_downsampler/ConfigVoxelGridDistanceFilter
-    '{ voxel_leaf_size: 0.01, measurement_range: 300, min_measurement_range: 4}' " output="screen" />]
+    '{ voxel_leaf_size: 0.01, measurement_range: 300, min_measurement_range: 3.8}' " output="screen" />]
+        
+    <!-- points densifier -->
+    <include file="$(find points_densifier)/launch/points_densifier.launch">
+        <arg name="input_topic" default="/filtered_points" />
+        <arg name="output_topic" default="/points_densified" />
+        <arg name="fixed_frame_id" default="world" />
+        <arg name="output_frame_id" default="top_velodyne_link" />
+        <arg name="history_num" default="5" />
+    </include>
     <!-- ground filter -->
     <include file="$(find points_preprocessor)/launch/compare_map_filter.launch">
-        <arg name="input_point_topic" default="/filtered_points" />
+        <arg name="input_point_topic" default="/points_densified" />
         <arg name="input_map_topic" default="/points_map" />
         <arg name="output_match_topic" default="/points_ground" />
         <arg name="output_unmatch_topic" default="/points_no_ground" />
     </include>
 
+
+
     <!-- obstacle recognition (pub:detection/lidar_detector/objects)-->
     <!-- <include file="$(find lidar_euclidean_cluster_detect)/launch/lidar_euclidean_cluster_detect.launch" >
-        <arg name="points_node" default="/filtered_points" />
+        <arg name="points_node" default="/points_no_ground" />
         <arg name="use_gpu" default="true" />
         <arg name="remove_ground" default="true" />
         <arg name="downsample_cloud" default="false" />
         <arg name="leaf_size" default="0.1" />
-        <arg name="cluster_size_min" default="20" />
+        <arg name="cluster_size_min" default="10" />
         <arg name="cluster_size_max" default="100000" />
         <arg name="sync" default="false" />
         <arg name="use_diffnormals" default="false" />
@@ -63,13 +74,13 @@
         <arg name="clip_min_height" default="-1.3" />
         <arg name="clip_max_height" default="0.5" />
 
-        <arg name="keep_lanes" default="false" />
+        <arg name="keep_lanes" default="true" />
         <arg name="keep_lane_left_distance" default="5" />
         <arg name="keep_lane_right_distance" default="5" />
         <arg name="cluster_merge_threshold" default="1.5" />
         <arg name="clustering_distance" default="0.75" />
 
-        <arg name="use_vector_map" default="false" />
+        <arg name="use_vector_map" default="true" />
         <arg name="wayarea_gridmap_layer" default="wayarea" />
 
         <arg name="output_frame" default="top_velodyne_link" />
@@ -83,17 +94,17 @@
     </include> -->
     <!-- point pillar -->
     <include file="$(find lidar_point_pillars)/launch/lidar_point_pillars.launch">
-        <arg name="input_topic" default="/filtered_points"/>
+        <arg name="input_topic" default="/points_densified"/>
         <arg name="baselink_support" default="true"/>
         <arg name="reproduce_result_mode" default="false"/>
-        <arg name="score_threshold" default="0.2" />
+        <arg name="score_threshold" default="0.3" />
         <arg name="nms_overlap_threshold" default="0.5" />
         <arg name="pfe_onnx_file" default="$(find aichallenge_bringup)/data/pfe.onnx"/>
         <arg name="rpn_onnx_file" default="$(find aichallenge_bringup)/data/rpn.onnx"/>
     </include>
 
     <!-- fusion -->
-    <!-- <include file="$(find range_vision_fusion)/launch/range_vision_fusion.launch">
+    <include file="$(find range_vision_fusion)/launch/range_vision_fusion.launch">
         <arg name="detected_objects_range" default="/detection/lidar_detector/objects"/>
         <arg name="detected_objects_vision" default="/detection/image_detector/objects"/>
         <arg name="camera_info_src" default="/front_camera/camera_info"/>
@@ -104,13 +115,13 @@
         <arg name="overlap_threshold" default="0.3"/>
         <arg name="use_vector_map" default="false"/>
         <arg name="namespace" default="/detection/fusion_tools"/>
-    </include> -->
+    </include>
 
     <!-- Object tracker -->
     <include file="$(find imm_ukf_pda_track)/launch/imm_ukf_pda_track_lanelet2.launch">
         <arg name="namespace" default="/detection/object_tracker"/>
-        <!-- <arg name="tracker_input_topic" default="/detection/fusion_tools/objects"/> -->
-        <arg name="tracker_input_topic" default="/detection/lidar_detector/objects"/>
+        <arg name="tracker_input_topic" default="/detection/fusion_tools/objects"/>
+        <!-- <arg name="tracker_input_topic" default="/detection/lidar_detector/objects"/> -->
         <arg name="tracker_output_topic" default="/detection/object_tracker/objects" />
 
         <arg name="tracking_frame" default="/world" />
@@ -124,7 +135,7 @@
         <arg name="merge_distance_threshold" default="0.5"/>
         <arg name="use_sukf" default="false" />
         <!-- Vectormap -->
-        <arg name="use_map_info" default="false"/>
+        <arg name="use_map_info" default="true"/>
         <arg name="lane_direction_chi_threshold" default="2.71" />
         <arg name="nearest_lane_distance_threshold" default="1.0" />
         <arg name="map_frame" default="/map" />
@@ -132,8 +143,8 @@
 
     <!-- naieve motion predictor -->
     <include file="$(find naive_motion_predict)/launch/naive_motion_predict.launch">
-        <arg name="interval_sec" default="0.4"/>
-        <arg name="num_prediction" default="10"/>
+        <arg name="interval_sec" default="0.2"/>
+        <arg name="num_prediction" default="20"/>
         <arg name="sensor_height" default="2.0"/>
         <arg name="filter_out_close_object_threshold" default="1.5"/>
         <!-- <arg name="input_topic" default="detection/lidar_detector/objects"/> -->
@@ -151,21 +162,26 @@
         <arg name="points_input" default="/points_no_ground" />
         <arg name="maximum_lidar_height_thres" default="0.3" />
         <arg name="minimum_lidar_height_thres" default="-2.2" />
-        <arg name="expand_polygon_size" default="2.0" />
-        <arg name="grid_resolution" default="1.0" />
-        <arg name="grid_length_x" default="55" />
-        <arg name="grid_length_y" default="30" />
+        <arg name="expand_polygon_size" default="1.0" />
+        <arg name="grid_resolution" default="0.5" />
+        <arg name="grid_length_x" default="45" />
+        <arg name="grid_length_y" default="10" />
     </include>
 
     <!-- PLANNING ...................................................................................... -->
     <include file="$(find waypoint_planner)/launch/astar_avoid.launch">
         <arg name="enable_avoidance" default="true" />
         <arg name="avoid_start_velocity" default="11.0" />
-        <arg name="search_waypoints_delta" default="2" />
-        <arg name="search_waypoints_size" default="60" />
+        <arg name="search_waypoints_delta" default="4" />
+        <arg name="search_waypoints_size" default="100" />
+    </include>
+    <include file="$(find lane_stopper)/launch/lane_stopper.launch">
+        <arg name="objects_topic" default="/detection/lidar_detector/objects" />
+        <arg name="current_pose_topic" default="/current_pose" />
+        <arg name="stop_distance" default="30.0" />
     </include>
     
-    <!-- BASIC LANE FOLLOWING RULES AND WAYPOINTS ....................................................... -->
+    <!-- BASIC LANE FOLLOW RULES AND WAYPOINTS ....................................................... -->
     <include file="$(find lane_planner)/launch/lane_rule_option.launch"/>
     <include file="$(find lane_planner)/launch/lane_select.launch"/>
     <node pkg="lane_planner" type="lane_stop" name="lane_stop"/>
@@ -173,6 +189,7 @@
         <arg name="topic_pose_stamped" default="/ndt_pose"/>
         <arg name="topic_twist_stamped" default="/estimate_twist"/>
     </include>
+    <!-- pub: /brake_flag -->
     <include file="$(find waypoint_maker)/launch/waypoint_loader.launch">
         <arg name="multi_lane_csv" default="$(find aichallenge_bringup)/data/saved_waypoints.csv"/>
         <arg name="load_csv" default="true"/>
@@ -182,17 +199,18 @@
     <!-- CONTROL (FOLLOW TRAJECTORY) .............................................................................. -->
     <include file="$(find pure_pursuit)/launch/pure_pursuit.launch">
         <arg name="publishes_for_steering_robot" default="true"/>
-        <arg name="lookahead_ratio" default="1.3"/>
+        <arg name="lookahead_ratio" default="2.0"/>
         <arg name="minimum_lookahead_distance" default="3.0"/>
     </include>
     <!-- <include file="$(find waypoint_planner)/launch/velocity_set_option.launch"/> -->
     <include file="$(find waypoint_planner)/launch/velocity_set_lanelet2.launch" />
     <include file="$(find twist_filter)/launch/twist_filter.launch" >
-      <arg name="lateral_accel_limit" default="20.0" />
+      <arg name="lateral_accel_limit" default="30.0" />
     </include>
     
     <!-- rviz: TODO remove these lines below before submitting the online evaluator -->
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aichallenge_bringup)/data/aichallenge.rviz" />
-    <node type="rosservice" name="pure_pursuit_log" pkg="rosservice" args="call /pure_pursuit/set_logger_level ros.pure_pursuit ERROR" />
-    <node type="rosservice" name="costmap_generator_lanelet2_log" pkg="rosservice" args="call /costmap_generator_lanelet2/set_logger_level ros.costmap_generator WARN" />
+    <node type="rosservice" name="pure_pursuit_log_killer" pkg="rosservice" args="call /pure_pursuit/set_logger_level ros.pure_pursuit ERROR" />
+    <node type="rosservice" name="costmap_generator_lanelet2_log_killer" pkg="rosservice" args="call /costmap_generator_lanelet2/set_logger_level ros.costmap_generator WARN" />
+    <node type="rosservice" name="lane_select_log_killer" pkg="rosservice" args="call /lane_select/set_logger_level ros.lane_planner ERROR" />
 </launch>
