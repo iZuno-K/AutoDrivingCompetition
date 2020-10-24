@@ -27,6 +27,10 @@ else:
     sim.load(scene_name)
 spawns = sim.get_spawn()
 
+print("<< START FROM  INTERSECTION 1 >>")
+INIT_POS_X = -105.0891
+INIT_POS_Z = -321.0699 # <- Caution!!, NOT Y, BUT Z
+INIT_POS_Y = -7.1735 # <- Caution!!, NOT Z, BUT Y
 
 def project(point):
     # project the point to ground surface
@@ -37,35 +41,16 @@ def project(point):
 
 def add_ego_car(offset_forward=0, offset_right=0, up_weight=0):
     spawns = sim.get_spawn()
-    forward = lgsvl.utils.transform_to_forward(spawns[0])
-    right = lgsvl.utils.transform_to_right(spawns[0])
-    up = lgsvl.utils.transform_to_up(spawns[0])
     state = lgsvl.AgentState()
     state.transform = spawns[0]
-    deepcopied = copy.deepcopy(state.transform.position)
-    print("spawns[0] is,", deepcopied)
-    print("Add_forward,"+ str(offset_forward) + ", " + str(offset_forward * forward) +", " + str(deepcopied + offset_forward * forward) )
-    print("Add_offset_right,", deepcopied + offset_right * right)
-    print("Add_up,", deepcopied + 5 * up * up_weight)
-    print("before projection,", deepcopied + offset_forward * forward + offset_right * right + 5 * up * up_weight)
-    print("Afetr projection,", project(deepcopied + offset_forward * forward + offset_right * right + 5 * up * up_weight))
-    print(type(state.transform.position))
-    state.transform.position = project(spawns[0].position + offset_forward * forward + offset_right * right + 5 * up * up_weight)
-    if (state.transform.position == state.transform.position):
-        print('Self Transform')
-        pass
-    print(state.transform)
-    # Uwagaki
-    # state.transform.position = lgsvl.geometry.Vector(-34.0401,-323.399261475,-5.05404281616)
-    state.transform.position = lgsvl.geometry.Vector(-105.0891,-7.1735, -321.0699)
-    # state.transform.position = lgsvl.geometry.Vector(-98.5741806030273, -6.67760610580444, -288.011657714844)
-    print(state.transform)
-
+    # state.transform.position = project(spawns[0].position + offset_forward * forward + offset_right * right + 5 * up * up_weight)
+    # state.transform.position = lgsvl.geometry.Vector(-105.0891,-7.1735, -321.0699)
+    state.transform.position = lgsvl.geometry.Vector(INIT_POS_X, INIT_POS_Y, INIT_POS_Z)
     a = sim.add_agent(vehicle_name,
                       lgsvl.AgentType.EGO, state)
 
     a.connect_bridge(args.bridge, 9090)
-    print("Waiting for connection...yo")
+    print("Waiting for connection...")
     while not a.bridge_connected:
         time.sleep(1)
     print("Bridge connected:", a.bridge_connected)

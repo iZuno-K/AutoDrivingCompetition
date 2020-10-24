@@ -11,15 +11,16 @@ if __name__ == "__main__":
     msg = PoseWithCovarianceStamped()
     msg.header.frame_id = "map"
 
-    # Original start point
-    msg.pose.pose.position.x = -8.3487071991 # 0
-    msg.pose.pose.position.y = 53.4187088013 # 0
-    msg.pose.pose.position.z = 0.0
+    # # Original start point
+    # msg.pose.pose.position.x = -8.3487071991 # 0
+    # msg.pose.pose.position.y = 53.4187088013 # 0
+    # msg.pose.pose.position.z = 0.0
     
-    # # Crossroad No.1 (After passing by a stopped car)
-    # msg.pose.pose.position.x = -105.0891 
-    # msg.pose.pose.position.y = -321.0699
-    # msg.pose.pose.position.z = -7.1735
+    # Crossroad No.1 (After passing by a stopped car)
+    rospy.loginfo("Intersection No.1")
+    msg.pose.pose.position.x = -105.0891 
+    msg.pose.pose.position.y = -321.0699
+    msg.pose.pose.position.z = -7.1735
     
     msg.pose.pose.orientation.x = 0.0
     msg.pose.pose.orientation.y = 0.0
