@@ -10,9 +10,24 @@ if __name__ == "__main__":
     # Run publisher
     msg = PoseWithCovarianceStamped()
     msg.header.frame_id = "map"
-    msg.pose.pose.position.x = -8.3487071991
-    msg.pose.pose.position.y = 53.4187088013
+    
+    # offset_forward=0, offset_right=0, up_weight=0
+    msg.pose.pose.position.x = -8.3487071991 # 0
+    msg.pose.pose.position.y = 53.4187088013 # 0
     msg.pose.pose.position.z = 0.0
+
+    # # offset_forward=50, offset_right=0, up_weight=0
+    # msg.pose.pose.position.x = -21.8220252990723 # Vector.x
+    # msg.pose.pose.position.z = -2.02170538902283 # Vector.y
+    # msg.pose.pose.position.y = 2.0040488243103 # Vector.z
+
+
+    # # offset_forward=100, offset_right=5, up_weight=0
+    # msg.pose.pose.position.x = -39.4476509094238
+    # msg.pose.pose.position.y = -2.75920009613037
+    # msg.pose.pose.position.z = -45.0526962280273
+
+    
     msg.pose.pose.orientation.x = 0.0
     msg.pose.pose.orientation.y = 0.0
     msg.pose.pose.orientation.z = -0.791386926148

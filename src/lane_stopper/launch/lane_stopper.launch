@@ -9,6 +9,8 @@
     <param name="current_pose_topic" value="$(arg current_pose_topic)" />
     <param name="stop_distance" value="$(arg stop_distance)" />
   </node>
+  
+  <!-- Launch brake manager node -->
+  <!-- <node pkg="lane_stopper" name="braking_node" type="brake.py" output="screen"/> -->
+  <node pkg="lane_stopper" name="braking_node" type="brake.py"/>
 </launch>
-
-

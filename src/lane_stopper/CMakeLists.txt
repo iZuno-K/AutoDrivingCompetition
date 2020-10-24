@@ -68,3 +68,11 @@ install(DIRECTORY include/
 install(DIRECTORY launch/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
         PATTERN ".svn" EXCLUDE)
+
+set(PYTHON_SCRIPTS 
+        scripts/brake.py)
+        foreach(scripts ${PYTHON_SCRIPTS})
+                catkin_install_python(PROGRAMS ${scripts}
+                DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+endforeach(scripts)
+      
