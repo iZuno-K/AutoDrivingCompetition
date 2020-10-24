@@ -12,14 +12,14 @@ if __name__ == "__main__":
     msg.header.frame_id = "map"
     
     # offset_forward=0, offset_right=0, up_weight=0
-    # msg.pose.pose.position.x = -8.3487071991 # 0
-    # msg.pose.pose.position.y = 53.4187088013 # 0
-    # msg.pose.pose.position.z = 0.0
+    msg.pose.pose.position.x = -8.3487071991 # 0
+    msg.pose.pose.position.y = 53.4187088013 # 0
+    msg.pose.pose.position.z = 0.0
 
-    # offset_forward=50, offset_right=0, up_weight=0
-    msg.pose.pose.position.x = -21.8220252990723 # Vector.x
-    msg.pose.pose.position.z = -2.02170538902283 # Vector.y
-    msg.pose.pose.position.y = 2.0040488243103 # Vector.z
+    # # offset_forward=50, offset_right=0, up_weight=0
+    # msg.pose.pose.position.x = -21.8220252990723 # Vector.x
+    # msg.pose.pose.position.z = -2.02170538902283 # Vector.y
+    # msg.pose.pose.position.y = 2.0040488243103 # Vector.z
 
 
     # # offset_forward=100, offset_right=5, up_weight=0
