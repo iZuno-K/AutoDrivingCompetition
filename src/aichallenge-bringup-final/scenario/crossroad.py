@@ -3,6 +3,7 @@
 
 # add_egocar() is been remodeling now to match IF as  add_static_car()
 
+from copy import deepcopy
 import os
 import lgsvl
 import math
@@ -41,12 +42,25 @@ def add_ego_car(offset_forward=0, offset_right=0, up_weight=0):
     up = lgsvl.utils.transform_to_up(spawns[0])
     state = lgsvl.AgentState()
     state.transform = spawns[0]
+    deepcopied = copy.deepcopy(state.transform.position)
+    print("spawns[0] is,", deepcopied)
+    print("Add_forward,"+ str(offset_forward) + ", " + str(offset_forward * forward) +", " + str(deepcopied + offset_forward * forward) )
+    print("Add_offset_right,", deepcopied + offset_right * right)
+    print("Add_up,", deepcopied + 5 * up * up_weight)
+    print("before projection,", deepcopied + offset_forward * forward + offset_right * right + 5 * up * up_weight)
+    print("Afetr projection,", project(deepcopied + offset_forward * forward + offset_right * right + 5 * up * up_weight))
+    print(type(state.transform.position))
     state.transform.position = project(spawns[0].position + offset_forward * forward + offset_right * right + 5 * up * up_weight)
     if (state.transform.position == state.transform.position):
         print('Self Transform')
         pass
+    print(state.transform)
+    # Uwagaki
+    # state.transform.position = lgsvl.geometry.Vector(-34.0401,-323.399261475,-5.05404281616)
+    state.transform.position = lgsvl.geometry.Vector(-105.0891,-7.1735, -321.0699)
+    # state.transform.position = lgsvl.geometry.Vector(-98.5741806030273, -6.67760610580444, -288.011657714844)
+    print(state.transform)
 
-    print(state.transform.position)
     a = sim.add_agent(vehicle_name,
                       lgsvl.AgentType.EGO, state)
 
@@ -196,7 +210,9 @@ def change_all_signals_green():
 scenario_id = 'train'
 
 # 自車位置、信号機は同じです。
-add_ego_car(50, 0, 0)
+# add_ego_car(400, 0, 0)
+add_ego_car(350, 0, 0)
+# add_ego_car(0, 0, 0)
 change_all_signals_green()
 # car1
 add_line_loop_car_with_trigger('Sedan', 1, [(165, 8), (250, 12)], 80, 0, angle_offset=0, speed=8)

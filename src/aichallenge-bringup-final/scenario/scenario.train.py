@@ -38,12 +38,10 @@ def add_ego_car():
     right = lgsvl.utils.transform_to_right(spawns[0])
     state = lgsvl.AgentState()
     state.transform = spawns[0]
-    print("REWRGWB")
     a = sim.add_agent(vehicle_name,
                       lgsvl.AgentType.EGO, state)
-
     a.connect_bridge(args.bridge, 9090)
-    print("Waiting for connection...yo")
+    print("Waiting for connection...")
     while not a.bridge_connected:
         time.sleep(1)
     print("Bridge connected:", a.bridge_connected)
