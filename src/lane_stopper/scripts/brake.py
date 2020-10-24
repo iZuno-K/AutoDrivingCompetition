@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 import message_filters
 import rospy
 from autoware_msgs.msg import VehicleCmd
@@ -59,11 +62,11 @@ class BrakingCtrl:
         rospy.loginfo("[BrakeCtrl] start")
         while 1:
             if self.set_bake:
-                rospy.loginfo("TO MA RE EEEEE")
+                rospy.loginfo("[BrakeCtrl] TO MA RE EEEEE")
                 self.cmd_msg.ctrl_cmd.linear_acceleration = -1
                 self.pub_accel.publish(self.cmd_msg)
             else:
-                rospy.loginfo(" uhoku ")
+                # rospy.loginfo(" uhoku ")
                 pass
             self.rate.sleep()
             pass

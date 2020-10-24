@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-#!/usr/bin/env python3
+# add_egocar() is been remodeling now to match IF as  add_static_car()
 
 import os
 import lgsvl
