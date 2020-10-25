@@ -3,6 +3,7 @@
 
 # add_egocar() is been remodeling now to match IF as  add_static_car()
 
+from copy import deepcopy
 import os
 import lgsvl
 import math
@@ -26,6 +27,10 @@ else:
     sim.load(scene_name)
 spawns = sim.get_spawn()
 
+print("<< START FROM  INTERSECTION 1 >>")
+INIT_POS_X = -105.0891
+INIT_POS_Z = -321.0699 # <- Caution!!, NOT Y, BUT Z
+INIT_POS_Y = -7.1735 # <- Caution!!, NOT Z, BUT Y
 
 def project(point):
     # project the point to ground surface
@@ -34,24 +39,16 @@ def project(point):
     hit = sim.raycast(point, lgsvl.Vector(0, -1, 0), layer_mask)
     return copy.deepcopy(hit.point)
 
-def add_ego_car(offset_forward=0, offset_right=0, up_weight=0):
+def add_ego_car():
     spawns = sim.get_spawn()
-    forward = lgsvl.utils.transform_to_forward(spawns[0])
-    right = lgsvl.utils.transform_to_right(spawns[0])
-    up = lgsvl.utils.transform_to_up(spawns[0])
     state = lgsvl.AgentState()
     state.transform = spawns[0]
-    state.transform.position = project(spawns[0].position + offset_forward * forward + offset_right * right + 5 * up * up_weight)
-    if (state.transform.position == state.transform.position):
-        print('Self Transform')
-        pass
-
-    print(state.transform.position)
+    state.transform.position = lgsvl.geometry.Vector(INIT_POS_X, INIT_POS_Y, INIT_POS_Z)
     a = sim.add_agent(vehicle_name,
                       lgsvl.AgentType.EGO, state)
 
     a.connect_bridge(args.bridge, 9090)
-    print("Waiting for connection...yo")
+    print("Waiting for connection...")
     while not a.bridge_connected:
         time.sleep(1)
     print("Bridge connected:", a.bridge_connected)
@@ -196,7 +193,7 @@ def change_all_signals_green():
 scenario_id = 'train'
 
 # 自車位置、信号機は同じです。
-add_ego_car(50, 0, 0)
+add_ego_car()
 change_all_signals_green()
 # car1
 add_line_loop_car_with_trigger('Sedan', 1, [(165, 8), (250, 12)], 80, 0, angle_offset=0, speed=8)

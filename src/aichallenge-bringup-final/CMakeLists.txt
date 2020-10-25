@@ -38,6 +38,7 @@ endforeach(dir)
 
 set(PYTHON_SCRIPTS 
   scripts/initial_pose_publisher.py
+  scripts/initial_pose_publisher_intersection1.py
   scripts/yaml_to_camera_info_publisher.py)
 foreach(scripts ${PYTHON_SCRIPTS})
   catkin_install_python(PROGRAMS ${scripts}
