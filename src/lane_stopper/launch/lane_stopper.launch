@@ -4,21 +4,28 @@
   <arg name="current_pose_topic" default="/current_pose" />
   <arg name="stop_distance" default="20" />
   <arg name="accel_divide_gain" default="20.0" />
-  <arg name="lowpass_gain" default="0.0" />
   <arg name="accel_limit" default="1.0" />
   <arg name="deccel_limit" default="-1.0" />
+  <arg name="lowpass_gain_accl" default="0.0" />
   <arg name="lowpass_gain_steer" default="0.1" />
+
+  <arg name="lateral_accel_limit" default="5.0" />
+  <arg name="lateral_jerk_limit" default="5.0" />
+  <arg name="loop_rate" default="30.0" /> <!--Hz = 1 / loop_rate-->
   
   <node pkg="lane_stopper" type="lane_stopper" name="lane_stopper" output="screen">
     <param name="objects_topic" value="$(arg objects_topic)" />
     <param name="current_pose_topic" value="$(arg current_pose_topic)" />
     <param name="stop_distance" value="$(arg stop_distance)" />
     <param name="accel_divide_gain" value="$(arg accel_divide_gain)" />
-    <param name="lowpass_gain" value="$(arg lowpass_gain)" />
     <param name="accel_limit" value="$(arg accel_limit)"/>
     <param name="deccel_limit" value="$(arg deccel_limit)"/>
+    <param name="lowpass_gain_accl" value="$(arg lowpass_gain_accl)" />
     <param name="lowpass_gain_steer" value="$(arg lowpass_gain_steer)" />
 
+    <param name="lateral_accel_limit" value="$(arg lateral_accel_limit)" />
+    <param name="lateral_jerk_limit" value="$(arg lateral_jerk_limit)" />
+    <param name="loop_rate" value="$(arg loop_rate)" /> <!--Hz = 1 / loop_rate-->
   </node>
   
   <!-- Launch brake manager node -->
