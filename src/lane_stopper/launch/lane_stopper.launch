@@ -3,14 +3,25 @@
   <arg name="objects_topic" default="/detection/lidar_detector/objects" />
   <arg name="current_pose_topic" default="/current_pose" />
   <arg name="stop_distance" default="20" />
-
+  <arg name="accel_divide_gain" default="20.0" />
+  <arg name="lowpass_gain" default="0.0" />
+  <arg name="accel_limit" default="1.0" />
+  <arg name="deccel_limit" default="-1.0" />
+  <arg name="lowpass_gain_steer" default="0.1" />
+  
   <node pkg="lane_stopper" type="lane_stopper" name="lane_stopper" output="screen">
     <param name="objects_topic" value="$(arg objects_topic)" />
     <param name="current_pose_topic" value="$(arg current_pose_topic)" />
     <param name="stop_distance" value="$(arg stop_distance)" />
+    <param name="accel_divide_gain" value="$(arg accel_divide_gain)" />
+    <param name="lowpass_gain" value="$(arg lowpass_gain)" />
+    <param name="accel_limit" value="$(arg accel_limit)"/>
+    <param name="deccel_limit" value="$(arg deccel_limit)"/>
+    <param name="lowpass_gain_steer" value="$(arg lowpass_gain_steer)" />
+
   </node>
   
   <!-- Launch brake manager node -->
   <!-- <node pkg="lane_stopper" name="braking_node" type="brake.py" output="screen"/> -->
-  <node pkg="lane_stopper" name="braking_node" type="brake.py"/>
+  <!-- <node pkg="lane_stopper" name="braking_node" type="brake.py"/> -->
 </launch>

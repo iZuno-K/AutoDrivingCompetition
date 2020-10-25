@@ -12,6 +12,7 @@
 // y4
 // y = 3.7920438197948 x + -212.38461245157148
 
+
 bool LaneStopper::objectInIncomingLane(const autoware_msgs::DetectedObject &object) {
     double x, y;
     x = object.pose.position.x;
@@ -27,6 +28,15 @@ bool LaneStopper::objectIncomingIntersection2(const autoware_msgs::DetectedObjec
     if (y < a[4] * x + b[4]) return true;
     else return false;
 }
+
+bool LaneStopper::objectIncomingIntersection1(const autoware_msgs::DetectedObject &object) {
+    double x, y;
+    x = object.pose.position.x;
+    y = object.pose.position.y; 
+    if (y < a[5] * x + b[5]) return true;
+    else return false;
+}
+
 
 bool LaneStopper::inIntersection1(const geometry_msgs::PoseStamped& msg) {
     geometry_msgs::Point p = msg.pose.position;
@@ -44,9 +54,7 @@ double LaneStopper::dist(const geometry_msgs::Pose p, const geometry_msgs::Pose 
     return std::hypot(p.position.x - q.position.x, p.position.y - q.position.y);
 }
 
-bool LaneStopper::stopIntersection1(const autoware_msgs::DetectedObjectArray &input, const geometry_msgs::PoseStamped& mycarpose) {
-    debug_publisher1.publish(input);
-    debug_publisher2.publish(mycarpose);
+bool LaneStopper::stopIntersection(const autoware_msgs::DetectedObjectArray &input, const geometry_msgs::PoseStamped& mycarpose) {
     try {
         tf::StampedTransform convertMatrix;
         tf_listener_.waitForTransform("map", input.header.frame_id, ros::Time(0), ros::Duration(1.0));
@@ -62,10 +70,12 @@ bool LaneStopper::stopIntersection1(const autoware_msgs::DetectedObjectArray &in
                 ROS_INFO("[%s] Object in the incomming lane.", __APP_NAME__);
                 // 自車が交差点1にいるとき
                 if (inIntersection1(mycarpose)) {
-                    if (dist(obj.pose, mycarpose.pose) < stop_distance_) {
-                        // make_stop_waypoints();
-                        ROS_ERROR("[%s] Stop at Intersection1.", __APP_NAME__);
-                        return true;
+                    if (objectIncomingIntersection1(obj)) {
+                        if (dist(obj.pose, mycarpose.pose) < stop_distance_) {
+                            // make_stop_waypoints();
+                            ROS_ERROR("[%s] Stop at Intersection1.", __APP_NAME__);
+                            return true;
+                        }
                     }
                 }
                 // 自車が交差点2にいるとき
@@ -89,36 +99,80 @@ bool LaneStopper::stopIntersection1(const autoware_msgs::DetectedObjectArray &in
     return false;
 }
 
-void LaneStopper::SyncedDetectionsCallback(const autoware_msgs::DetectedObjectArray::ConstPtr &input,
+void LaneStopper::syncedDetectionsCallback(const autoware_msgs::DetectedObjectArray::ConstPtr &input,
                                            const geometry_msgs::PoseStamped::ConstPtr& mycarpose) {
-    bool flag;
-    flag = LaneStopper::stopIntersection1(*input, *mycarpose);
-    if (flag) {
+    brake_flag_ = LaneStopper::stopIntersection(*input, *mycarpose);
+    if (brake_flag_) {
         ROS_ERROR("[%s] Brake flag is true.", __APP_NAME__);
     }
     std_msgs::Bool msg;
-    msg.data = flag;
+    msg.data = brake_flag_;
     bool_publisher.publish(msg);
     // if (inIntersection1(*mycarpose)) ROS_ERROR("[%s] At Intersection1.", __APP_NAME__);
     // if (inIntersection2(*mycarpose)) ROS_ERROR("[%s] At Intersection2.", __APP_NAME__);
 }
 
-LaneStopper::LaneStopper() : node_handle_(), private_node_handle_("~"), tf_listener_() {
+void LaneStopper::reset_vehicle_cmd_msg()
+{
+  twist_gate_msg_.twist_cmd.twist.linear.x = 0;
+  twist_gate_msg_.twist_cmd.twist.angular.z = 0;
+  twist_gate_msg_.mode = 0;
+  twist_gate_msg_.gear = 0;
+  twist_gate_msg_.lamp_cmd.l = 0;
+  twist_gate_msg_.lamp_cmd.r = 0;
+  twist_gate_msg_.accel_cmd.accel = 0;
+  twist_gate_msg_.brake_cmd.brake = 0;
+  twist_gate_msg_.steer_cmd.steer = 0;
+  twist_gate_msg_.ctrl_cmd.linear_velocity = 0;
+  twist_gate_msg_.ctrl_cmd.steering_angle = 0;
+  twist_gate_msg_.emergency = 0;
+}
+
+void LaneStopper::vehicleCmdCallback(const autoware_msgs::VehicleCmd::ConstPtr& input_msg) {
+    // twist_gate_msg_ = *input_msg;
+
+    LaneStopper::reset_vehicle_cmd_msg();
+    double accel, steer;
+    twist_gate_msg_.gear = 64;
+    steer = - (input_msg->ctrl_cmd.steering_angle / PI * 180.0) / 39.4; 
+    accel = input_msg->ctrl_cmd.linear_acceleration / accel_divide_gain_;
+    
+    accel = std::max(deccel_limit_, std::min(accel, accel_limit_));
+    filtered_accel_ = lowpass_gain_ * filtered_accel_ + (1 - lowpass_gain_) * accel;
+    filtered_steer_ = lowpass_gain_steer_ * filtered_steer_ + (1 - lowpass_gain_steer_) * steer;
+    
+    twist_gate_msg_.ctrl_cmd.linear_acceleration = filtered_accel_;
+    twist_gate_msg_.ctrl_cmd.steering_angle = filtered_steer_;
+    
+    if (brake_flag_) {
+        twist_gate_msg_.ctrl_cmd.linear_velocity = -10.0;
+        twist_gate_msg_.ctrl_cmd.linear_acceleration = -10.0;
+    }
+    vehicle_cmd_pub.publish(twist_gate_msg_);
+}
+
+LaneStopper::LaneStopper() : node_handle_(), private_node_handle_("~"), tf_listener_(), brake_flag_(false), filtered_accel_(0.0), filtered_steer_(0.0) {
     private_node_handle_.param("stop_distance", stop_distance_, 20.0);
     private_node_handle_.param("objects_topic", objects_topic_, std::string("/detection/lidar_detector/objects"));
     private_node_handle_.param("current_pose_topic", pose_topic_, std::string("/current_pose"));
+    private_node_handle_.param("accel_divide_gain", accel_divide_gain_, 20.0);
+    private_node_handle_.param("lowpass_gain", lowpass_gain_, 0.0);
+    private_node_handle_.param("accel_limit", accel_limit_, 1.0);
+    private_node_handle_.param("deccel_limit", deccel_limit_, -1.0);
+    private_node_handle_.param("lowpass_gain_steer", lowpass_gain_steer_, 0.0);
 }
 
 void LaneStopper::run() {
     objectArraySubscriber_ = new message_filters::Subscriber<autoware_msgs::DetectedObjectArray>(node_handle_, objects_topic_, 1);
     poseSubscriber_ = new message_filters::Subscriber<geometry_msgs::PoseStamped>(node_handle_, pose_topic_, 1);
     synchronizer_ = new message_filters::Synchronizer<SyncPolicyT>(SyncPolicyT(10), *objectArraySubscriber_, *poseSubscriber_);
-    synchronizer_->registerCallback(boost::bind(&LaneStopper::SyncedDetectionsCallback, this, _1, _2));
+    synchronizer_->registerCallback(boost::bind(&LaneStopper::syncedDetectionsCallback, this, _1, _2));
 
-    debug_publisher1 = node_handle_.advertise<autoware_msgs::DetectedObjectArray>("/debug/lane_stopper/DetectedObjectArray", 1);
-    debug_publisher2 = node_handle_.advertise<geometry_msgs::PoseStamped>("/debug/lane_stopper/PoseStamped", 1);
+    vehicle_cmd_sub_ = node_handle_.subscribe("vehicle_cmd_pre", 1, &LaneStopper::vehicleCmdCallback, this);
+
     bool_publisher = node_handle_.advertise<std_msgs::Bool>("/brake_flag", 10); // to avoid miss subscription
-    
+    vehicle_cmd_pub = node_handle_.advertise<autoware_msgs::VehicleCmd>("/vehicle_cmd", 1, true);
+
     ros::spin();
 } 
 

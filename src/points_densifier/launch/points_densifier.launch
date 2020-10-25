@@ -6,7 +6,7 @@
   <arg name="output_frame_id" default="velodyne" />
   <arg name="fixed_frame_id" default="world" />
 
-  <node pkg="points_densifier" type="points_densifier" name="points_densifier" output="screen">
+  <node pkg="points_densifier" type="points_densifier" name="points_densifier">
     <param name="output_frame_id" value="$(arg output_frame_id)" />
     <param name="fixed_frame_id" value="$(arg fixed_frame_id)" />
     <param name="history_num" value="$(arg history_num)" />

@@ -5,7 +5,7 @@
     <include file="$(find lidar_localizer)/launch/ndt_matching.launch">  <!-- pcl_generic=0, pcl_anh=1, pcl_anh_gpu=2, pcl_openmp=3 -->
         <arg name="method_type" default="2"/> <!-- default: 0 -->
         <arg name="use_odom" default="false"/>  <!-- default: false -->
-        <arg name="use_imu" default="false" />  <!-- default: false -->
+        <arg name="use_imu" default="true" />  <!-- default: false -->
         <arg name="imu_upside_down" default="false"/> 
         <arg name="imu_topic" default="/imu_raw"/> 
         <arg name="get_height" default="true"/> 
@@ -18,7 +18,7 @@
     <!-- vision -->
     <include file="$(find vision_darknet_detect)/launch/vision_yolo3_detect.launch">
         <arg name="gpu_device_id" default="0"/>  
-        <arg name="score_threshold" default="0.70"/>
+        <arg name="score_threshold" default="0.55"/>
         <arg name="nms_threshold" default="0.450"/>
         <arg name="network_definition_file" default="$(find vision_darknet_detect)/darknet/cfg/yolov3.cfg"/>
         <arg name="pretrained_model_file" default="$(find aichallenge_bringup)/data/yolov3.weights"/>
@@ -39,7 +39,7 @@
     </include>
     <!-- to avoid self-detection, set min_measurement_range 4. voxel_leaf_size > 0.1 enables voxel grid down sampling -->
     <node pkg="rostopic" type="rostopic" name="vgf_config" args="pub /config/voxel_grid_distance_filter mypoints_downsampler/ConfigVoxelGridDistanceFilter
-    '{ voxel_leaf_size: 0.01, measurement_range: 300, min_measurement_range: 3.8}' " output="screen" />]
+    '{ voxel_leaf_size: 0.01, measurement_range: 300, min_measurement_range: 4}' " output="screen" />]
         
     <!-- points densifier -->
     <include file="$(find points_densifier)/launch/points_densifier.launch">
@@ -113,7 +113,7 @@
         <arg name="min_truck_dimensions" default="[4,2,2]"/>
         <arg name="sync_topics" default="true"/>
         <arg name="overlap_threshold" default="0.3"/>
-        <arg name="use_vector_map" default="false"/>
+        <arg name="use_vector_map" default="true"/>
         <arg name="namespace" default="/detection/fusion_tools"/>
     </include>
 
@@ -163,9 +163,9 @@
         <arg name="maximum_lidar_height_thres" default="0.3" />
         <arg name="minimum_lidar_height_thres" default="-2.2" />
         <arg name="expand_polygon_size" default="1.0" />
-        <arg name="grid_resolution" default="0.5" />
-        <arg name="grid_length_x" default="45" />
-        <arg name="grid_length_y" default="10" />
+        <arg name="grid_resolution" default="0.4" />
+        <arg name="grid_length_x" default="50" />
+        <arg name="grid_length_y" default="20" />
     </include>
 
     <!-- PLANNING ...................................................................................... -->
@@ -176,9 +176,14 @@
         <arg name="search_waypoints_size" default="100" />
     </include>
     <include file="$(find lane_stopper)/launch/lane_stopper.launch">
-        <arg name="objects_topic" default="/detection/lidar_detector/objects" />
+        <arg name="objects_topic" default="/detection/fusion_tools/objects" />
         <arg name="current_pose_topic" default="/current_pose" />
-        <arg name="stop_distance" default="30.0" />
+        <arg name="stop_distance" default="35.0" />
+        <arg name="accel_divide_gain" default="1.0" />
+        <arg name="lowpass_gain" default="0.0" />
+        <arg name="accel_limit" default="1.0" />
+        <arg name="deccel_limit" default="-1.0" />
+        <arg name="lowpass_gain_steer" default="0.3" />
     </include>
     
     <!-- BASIC LANE FOLLOW RULES AND WAYPOINTS ....................................................... -->
@@ -189,11 +194,13 @@
         <arg name="topic_pose_stamped" default="/ndt_pose"/>
         <arg name="topic_twist_stamped" default="/estimate_twist"/>
     </include>
-    <!-- pub: /brake_flag -->
     <include file="$(find waypoint_maker)/launch/waypoint_loader.launch">
         <arg name="multi_lane_csv" default="$(find aichallenge_bringup)/data/saved_waypoints.csv"/>
         <arg name="load_csv" default="true"/>
         <arg name="replanning_mode" default="true" />
+        <arg name="accel_limit" default="2.0" />
+        <arg name="decel_limit" default="1.0" />
+        <arg name="velocity_max" default="25" />
     </include>
 
     <!-- CONTROL (FOLLOW TRAJECTORY) .............................................................................. -->
@@ -203,11 +210,27 @@
         <arg name="minimum_lookahead_distance" default="3.0"/>
     </include>
     <!-- <include file="$(find waypoint_planner)/launch/velocity_set_option.launch"/> -->
-    <include file="$(find waypoint_planner)/launch/velocity_set_lanelet2.launch" />
-    <include file="$(find twist_filter)/launch/twist_filter.launch" >
-      <arg name="lateral_accel_limit" default="30.0" />
+    <include file="$(find waypoint_planner)/launch/velocity_set_lanelet2.launch">
+        <arg name="stop_distance_obstacle" default="15.0" />
     </include>
-    
+
+    <arg name="loop_rate" default="30.0" />
+    <arg name="use_decision_maker" default="false" />
+    <arg name="lateral_accel_limit" default="50.0" />
+    <arg name="lowpass_gain_linear_x" default="1.0" />
+    <arg name="lowpass_gain_angular_z" default="0.0" />
+    <!-- rosrun waypoint_follower twist_filter -->
+    <node pkg="twist_filter" type="twist_filter" name="twist_filter" output="log">
+        <param name="lateral_accel_limit" value="$(arg lateral_accel_limit)" />
+        <param name="lowpass_gain_linear_x" value="$(arg lowpass_gain_linear_x)" />
+        <param name="lowpass_gain_angular_z" value="$(arg lowpass_gain_angular_z)" />
+    </node>
+    <node pkg="twist_gate" type="twist_gate" name="twist_gate" output="log">
+        <param name="loop_rate" value="$(arg loop_rate)" />
+        <param name="use_decision_maker" value="$(arg use_decision_maker)" />
+        <remap from="/vehicle_cmd" to="/vehicle_cmd_pre"/>
+    </node>
+
     <!-- rviz: TODO remove these lines below before submitting the online evaluator -->
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aichallenge_bringup)/data/aichallenge.rviz" />
     <node type="rosservice" name="pure_pursuit_log_killer" pkg="rosservice" args="call /pure_pursuit/set_logger_level ros.pure_pursuit ERROR" />
