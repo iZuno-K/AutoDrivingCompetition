@@ -18,9 +18,9 @@ if __name__ == "__main__":
     
     # Crossroad No.1 (After passing by a stopped car)
     rospy.loginfo("Intersection No.1")
-    msg.pose.pose.position.x = -105.0891 
-    msg.pose.pose.position.y = -321.0699
-    msg.pose.pose.position.z = -7.1735
+    msg.pose.pose.position.x = -99.6277
+    msg.pose.pose.position.y = -301.8317
+    msg.pose.pose.position.z = -6.9193
     
     msg.pose.pose.orientation.x = 0.0
     msg.pose.pose.orientation.y = 0.0

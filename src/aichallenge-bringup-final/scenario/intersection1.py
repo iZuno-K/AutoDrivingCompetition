@@ -27,10 +27,10 @@ else:
     sim.load(scene_name)
 spawns = sim.get_spawn()
 
-print("<< START FROM  INTERSECTION 1 >>")
-INIT_POS_X = -105.0891
-INIT_POS_Z = -321.0699 # <- Caution!!, NOT Y, BUT Z
-INIT_POS_Y = -7.1735 # <- Caution!!, NOT Z, BUT Y
+print("<< START FROM  INTERSECTION 1 (waypoint:#372) >>")
+INIT_POS_X = -99.6277
+INIT_POS_Z = -301.8317 # <- Caution!!, NOT Y, BUT Z
+INIT_POS_Y = -6.9193 # <- Caution!!, NOT Z, BUT Y
 
 def project(point):
     # project the point to ground surface
