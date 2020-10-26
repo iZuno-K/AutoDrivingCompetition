@@ -11,6 +11,10 @@ import copy
 import time
 import argparse
 
+# const static for calibration
+_start_pont_yaw = -1.8429 #
+_start_pont_rotation_y = 194.823394775391
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--host",help='simulator execute pc\'s ip address / --host 192.168.0.1',default='127.0.0.1')
 parser.add_argument("--bridge",help='bridge execute pc\'s ip address / --bridge 192.168.0.1',default='127.0.0.1')
@@ -27,10 +31,12 @@ else:
     sim.load(scene_name)
 spawns = sim.get_spawn()
 
-print("<< START FROM  INTERSECTION 1 (waypoint:#372) >>")
-INIT_POS_X = -99.6277
-INIT_POS_Z = -301.8317 # <- Caution!!, NOT Y, BUT Z
-INIT_POS_Y = -6.9193 # <- Caution!!, NOT Z, BUT Y
+# Set start position ,sample is # 458
+print("<< START FROM  INTERSECTION 2 # 458>>")
+x_y_z_yaw = [-56.4859, -348.4951, -7.5593, -0.2357]
+
+def cvt_yaw2rotation_y(saved_pont_yaw = _start_pont_yaw):
+    return -1 * (saved_pont_yaw - _start_pont_yaw) * (180/math.pi) + _start_pont_rotation_y
 
 def project(point):
     # project the point to ground surface
@@ -40,10 +46,18 @@ def project(point):
     return copy.deepcopy(hit.point)
 
 def add_ego_car():
+    INIT_POS_X = x_y_z_yaw[0]
+    INIT_POS_Z = x_y_z_yaw[1] # <- Caution!!, NOT Y, BUT Z
+    INIT_POS_Y = x_y_z_yaw[2] # <- Caution!!, NOT Z, BUT Y
+    INIT_ORI_YAW = x_y_z_yaw[3]
     spawns = sim.get_spawn()
     state = lgsvl.AgentState()
     state.transform = spawns[0]
     state.transform.position = lgsvl.geometry.Vector(INIT_POS_X, INIT_POS_Y, INIT_POS_Z)
+    # print(state.transform)
+    # print('---- After rotation ----')
+    state.transform.rotation.y = cvt_yaw2rotation_y(INIT_ORI_YAW)
+    # print(state.transform)
     a = sim.add_agent(vehicle_name,
                       lgsvl.AgentType.EGO, state)
 

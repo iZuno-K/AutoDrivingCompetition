@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="lanelet2_osm_path" default="$(find aichallenge_bringup)/data/lanelet2_fixed.osm"/>
+    <arg name="pcd_file_path" default="$(find aichallenge_bringup)/data/simulator.pcd"/>
+
+    <rosparam command="load" file="$(find aichallenge_bringup)/data/localizer.yaml"/>
+    <node pkg="tf2_ros"  type="static_transform_publisher" name="world_to_map" args="0 0 0 0 0 0 world map"/>
+    <node pkg="rostopic" type="rostopic" name="arbitrary_name" args="pub /config/ndt autoware_config_msgs/ConfigNDT
+        '{ header: auto,
+        init_pos_gnss: 0,
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+        roll: 0.0,
+        pitch: 0.0,
+        yaw: 0.0,
+        use_predict_pose: 1,
+        error_threshold: 1.0,
+        resolution: 1.0,
+        step_size: 0.10000000149,
+        trans_epsilon: 0.00999999977648,
+        max_iterations: 30 }' " output="screen">
+    </node>
+
+    <!-- <node pkg="aichallenge_bringup" type="initial_pose_publisher.py" name="initial_pose_publisher"> -->
+    <node pkg="aichallenge_bringup" type="initial_pose_publisher_intersection2.py" name="initial_pose_publisher">
+    </node>
+
+
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
+    </include>
+
+    <!-- <include file="$(find aichallenge_bringup)/launch/debug.launch">
+    </include> -->
+    <include file="$(find aichallenge_bringup)/launch/user_nodes.launch">
+    </include>
+
+    <include file="$(find map_file)/launch/lanelet2_map_loader.launch">
+        <arg name="file_name" default="$(arg lanelet2_osm_path)"/>
+    </include>
+
+    <node pkg="map_file" type="points_map_loader" name="points_map_loader" args="noupdate $(arg pcd_file_path)"/>
+
+    <node name="republish" type="republish" pkg="image_transport" output="screen" args="compressed in:=/front_camera/image raw out:=/front_camera/image_raw"/>
+    <node pkg="aichallenge_bringup" type="yaml_to_camera_info_publisher.py" name="front_camera_info_publisher" output="log" respawn="false" respawn_delay="0" args="">
+        <param name="filename" value="$(find aichallenge_bringup)/data/front_camera.yaml"/>
+        <param name="cameraname" value="front_camera"/>
+        <param name="frame_id" value="front_camera_optical_link"/>
+    </node>
+
+    <param name="robot_description" textfile="$(find aichallenge_bringup)/data/lexus.urdf" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+</launch>
