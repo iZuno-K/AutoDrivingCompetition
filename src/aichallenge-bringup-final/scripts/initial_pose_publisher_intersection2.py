@@ -6,8 +6,8 @@ import rospy
 import time
 import math
 
-# const static
-_original_yaw = -1.8429
+# Set start position
+x_y_z_yaw = [-56.4859, -348.4951, -7.5593, -0.2357]
 
 def yaw2z_and_w(saved_pont_yaw):
     """[summary]
@@ -34,23 +34,15 @@ if __name__ == "__main__":
     msg = PoseWithCovarianceStamped()
     msg.header.frame_id = "map"
 
-    # # Original start point
-    # msg.pose.pose.position.x = -8.3487071991 # 0
-    # msg.pose.pose.position.y = 53.4187088013 # 0
-    # msg.pose.pose.position.z = 0.0
-
     # Crossroad No.1 (After passing by a stopped car)
     rospy.loginfo("Intersection No.1")
-    msg.pose.pose.position.x = -56.4859
-    msg.pose.pose.position.y = -348.4951  # <- Caution!!, NOT Y, BUT Z
-    msg.pose.pose.position.z = -7.5593  # <- Caution!!, NOT Z, BUT Y
+    msg.pose.pose.position.x = x_y_z_yaw[0]
+    msg.pose.pose.position.y = x_y_z_yaw[1]
+    msg.pose.pose.position.z = x_y_z_yaw[2]
 
     msg.pose.pose.orientation.x = 0.0
     msg.pose.pose.orientation.y = 0.0
-    # θ/2 = -0.9130, θ = -1.8261
-    print('original : ', -0.791386926148, 0.611315575723)
-    z_, w_ = yaw2z_and_w(-0.2357)
-    print('debug : ', z_, w_)
+    z_, w_ = yaw2z_and_w(x_y_z_yaw[3])  # cal Quaternion
     msg.pose.pose.orientation.z = z_
     msg.pose.pose.orientation.w = w_
 
