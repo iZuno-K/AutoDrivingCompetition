@@ -31,8 +31,8 @@ else:
     sim.load(scene_name)
 spawns = sim.get_spawn()
 
-print("<< START FROM  INTERSECTION 2 # 458>>")
 # Set start position ,sample is # 458
+print("<< START FROM  INTERSECTION 2 # 458>>")
 x_y_z_yaw = [-56.4859, -348.4951, -7.5593, -0.2357]
 
 def cvt_yaw2rotation_y(saved_pont_yaw = _start_pont_yaw):
