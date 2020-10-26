@@ -22,7 +22,8 @@
         max_iterations: 30 }' " output="screen">
     </node>
 
-    <node pkg="aichallenge_bringup" type="initial_pose_publisher.py" name="initial_pose_publisher">
+    <!-- <node pkg="aichallenge_bringup" type="initial_pose_publisher.py" name="initial_pose_publisher"> -->
+    <node pkg="aichallenge_bringup" type="initial_pose_publisher_intersection1.py" name="initial_pose_publisher">
     </node>
 
 

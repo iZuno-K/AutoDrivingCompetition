@@ -1,0 +1,3 @@
+- name: /points_densifier
+  publish: [/points_concat]
+  subscribe: [/config/points_concat_filter, /lidar*/points_raw]
