@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-# brake.pyとか言う名前しているけど、imuを読むのに使いまーす
 
 import message_filters
 import rospy
@@ -12,7 +11,7 @@ import math
 
 class BrakingCtrl:
     def __init__(self):
-        rospy.init_node('imu_reader', anonymous=True, disable_signals=True)
+        rospy.init_node('braking_node', anonymous=True, disable_signals=True)
         # init variables
         self.vel_norm = 0
         self.vel_x = 0
