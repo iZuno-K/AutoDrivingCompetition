@@ -28,9 +28,17 @@ else:
 spawns = sim.get_spawn()
 
 print("<< START FROM  INTERSECTION 1 (waypoint:#372) >>")
-INIT_POS_X = -99.6277
-INIT_POS_Z = -301.8317 # <- Caution!!, NOT Y, BUT Z
-INIT_POS_Y = -6.9193 # <- Caution!!, NOT Z, BUT Y
+# <const static>
+_start_pont_yaw = -1.8429 # 
+_start_pont_rotation_y = 194.823394775391
+# Set from saved_waypoints
+INIT_POS_X = -56.4859
+INIT_POS_Z = -348.4951 # <- Caution!!, NOT Y, BUT Z
+INIT_POS_Y = -7.5593 # <- Caution!!, NOT Z, BUT Y
+INIT_ORI_YAW = -0.2357
+
+def cvt_yaw2rotation_y(saved_pont_yaw = _start_pont_yaw):
+    return -1 * (saved_pont_yaw - _start_pont_yaw) * (180/math.pi) + _start_pont_rotation_y
 
 def project(point):
     # project the point to ground surface
@@ -44,6 +52,12 @@ def add_ego_car():
     state = lgsvl.AgentState()
     state.transform = spawns[0]
     state.transform.position = lgsvl.geometry.Vector(INIT_POS_X, INIT_POS_Y, INIT_POS_Z)
+    print(state.transform)
+    print('---- After rotation ----')
+    # state.transform.rotation.y += 90
+    # state.transform.rotation.y += 90
+    state.transform.rotation.y = cvt_yaw2rotation_y(INIT_ORI_YAW)
+    print(state.transform)
     a = sim.add_agent(vehicle_name,
                       lgsvl.AgentType.EGO, state)
 
