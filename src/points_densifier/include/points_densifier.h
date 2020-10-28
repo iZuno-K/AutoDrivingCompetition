@@ -29,7 +29,7 @@
 
 using namespace std;
 
-#define MAX_HISTORY_NUM 5
+#define MAX_HISTORY_NUM 10
 
 class PointsDensifier
 {

@@ -151,7 +151,19 @@ void LaneStopper::CtrlCmdCallback(const autoware_msgs::ControlCommandStampedCons
 
 
 void LaneStopper::timer_callback(const ros::TimerEvent& e) {
+  if (!flag_activate_) {
+      // ROS_WARN("[%s]: duration count   %ld", __APP_NAME__, (time(NULL) - start_time_));
+      // ROS_WARN("[%s]: duration seconds %lf", __APP_NAME__, (double)(time(NULL) - start_time_) / CLOCKS_PER_SEC);
+      if ((double)(time(NULL) - start_time_) > initial_wait_time_) {
+          flag_activate_ = true;
+    }
+  }
+
+  if (flag_activate_) {
+    vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = 10.0;
+    vehicle_cmd_msg_.ctrl_cmd.steering_angle = 0.0;
     vehicle_cmd_pub.publish(vehicle_cmd_msg_);
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -251,7 +263,7 @@ autoware_msgs::ControlCommandStamped LaneStopper::lateralLimitCtrl(const autowar
 
 
 LaneStopper::LaneStopper() : node_handle_(), private_node_handle_("~"), tf_listener_(), brake_flag_(false), 
-filtered_accel_(0.0), filtered_steer_(0.0), health_checker_(node_handle_, private_node_handle_) {
+filtered_accel_(0.0), filtered_steer_(0.0), health_checker_(node_handle_, private_node_handle_), flag_activate_(false) {
     private_node_handle_.param("stop_distance", stop_distance_, 20.0);
     private_node_handle_.param("objects_topic", objects_topic_, std::string("/detection/lidar_detector/objects"));
     private_node_handle_.param("current_pose_topic", pose_topic_, std::string("/current_pose"));
@@ -265,6 +277,9 @@ filtered_accel_(0.0), filtered_steer_(0.0), health_checker_(node_handle_, privat
     private_node_handle_.param("lateral_accel_limit", lateral_accel_limit_, 5.0);
     private_node_handle_.param("lateral_jerk_limit", lateral_jerk_limit_, 5.0);
     private_node_handle_.param("loop_rate", loop_rate_, 30.0);
+
+    private_node_handle_.param("initial_wait_time", initial_wait_time_, 50.0);
+    start_time_ = time(NULL);
 
     LaneStopper::reset_vehicle_cmd_msg();
     health_checker_.ENABLE();

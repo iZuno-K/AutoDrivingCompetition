@@ -11,6 +11,7 @@
 #include <autoware_msgs/VehicleCmd.h>
 #include <boost/optional.hpp>
 #include <autoware_health_checker/health_checker/health_checker.h>
+#include <time.h>
 
 #define PI 3.14159265359
 
@@ -92,6 +93,9 @@ class LaneStopper {
     double lowpass_gain_accl_, lowpass_gain_steer_;
     double accel_limit_, deccel_limit_;
     double loop_rate_, lateral_accel_limit_, lateral_jerk_limit_, wheel_base_;
+    double initial_wait_time_;
+    bool flag_activate_;
+    time_t start_time_;
     // dataset
     StampedValue sa_prev_;
 

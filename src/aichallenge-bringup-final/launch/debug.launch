@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- ToDo : modify launch files and add ROS nodes developed by you -->
+    <include file="$(find lidar_localizer)/launch/ndt_matching.launch">
+        <arg name="method_type" default="3"/>
+        <arg name="use_odom" default="false"/>
+        <arg name="imu_upside_down" default="false"/>
+        <arg name="imu_topic" default="/imu_raw"/>
+        <arg name="get_height" default="true"/>
+    </include>
+    <include file="$(find lane_planner)/launch/lane_rule_option.launch"/>
+    <include file="$(find lane_planner)/launch/lane_select.launch"/>
+    <node pkg="lane_planner" type="lane_stop" name="lane_stop"/>
+    <include file="$(find autoware_connector)/launch/vel_pose_connect.launch">
+        <arg name="topic_pose_stamped" default="/ndt_pose"/>
+        <arg name="topic_twist_stamped" default="/estimate_twist"/>
+    </include>
+
+    <!-- Example Launch files (Just following example waypoints)-->
+    <include file="$(find waypoint_maker)/launch/waypoint_loader.launch">
+        <arg name="multi_lane_csv" default="$(find aichallenge_bringup)/data/saved_waypoints.csv"/>
+        <arg name="load_csv" default="true"/>
+        <arg name="replanning_mode" default="true" />
+    </include>
+    <include file="$(find waypoint_planner)/launch/astar_avoid.launch"/>
+    <include file="$(find waypoint_planner)/launch/velocity_set_option.launch"/>
+    <include file="$(find twist_filter)/launch/twist_filter.launch" >
+      <arg name="lateral_accel_limit" default="20.0" />
+    </include>
+    <node pkg="rostopic" type="rostopic" name="vgf_config" args="pub /config/voxel_grid_filter autoware_config_msgs/ConfigVoxelGridFilter
+    '{ voxel_leaf_size: 1.5,
+    measurement_range: 60 }' " output="screen" />
+    <include file="$(find points_downsampler)/launch/points_downsample.launch">
+    <arg name="points_topic" default="/top_velodyne/points_raw"/>
+    </include>
+    <!-- Example Launch files Ends(Just following example waypoints) -->
+
+
+    <!-- vision -->
+    <include file="$(find vision_darknet_detect)/launch/vision_yolo3_detect.launch">
+        <arg name="gpu_device_id" default="0"/>  
+        <arg name="score_threshold" default="0.6"/>
+        <arg name="nms_threshold" default="0.450"/>
+        <arg name="network_definition_file" default="$(find vision_darknet_detect)/darknet/cfg/yolov3.cfg"/>
+        <arg name="pretrained_model_file" default="$(find aichallenge_bringup)/data/yolov3.weights"/>
+        <arg name="names_file" default="$(find vision_darknet_detect)/darknet/cfg/coco.names"/>
+        <arg name="camera_id" default="/front_camera"/>
+        <arg name="image_src" default="/image_raw"/>
+    </include>
+
+    <!-- ground filter -->
+    <include file="$(find points_preprocessor)/launch/compare_map_filter.launch">
+        <arg name="input_point_topic" default="/top_velodyne/points_raw" />
+        <arg name="input_map_topic" default="/points_map" />
+        <arg name="output_match_topic" default="/points_ground" />
+        <arg name="output_unmatch_topic" default="/points_no_ground" />
+    </include>
+    <!-- points densifier -->
+    <include file="$(find points_densifier)/launch/points_densifier.launch">
+        <arg name="input_topic" default="/points_no_ground" />
+        <arg name="output_topic" default="/points_densified" />
+        <arg name="fixed_frame_id" default="world" />
+        <arg name="output_frame_id" default="top_velodyne_link" />
+        <arg name="history_num" default="5" />
+    </include>
+
+    <include file="$(find pcl_in_bbox)/launch/pcl_in_bbox.launch">
+      <arg name="points_src" default="/points_densified" /> <!-- PointCloud source topic-->
+      <arg name="image_detection_src" default="/detection/image_detector/objects" /> <!-- Raw Image source topic to be rectified-->
+      <arg name="camera_info_src" default="/front_camera/camera_info" /> <!-- CameraInfo source topic-->
+    </include>
+
+    <include file="$(find lidar_euclidean_cluster_detect)/launch/lidar_euclidean_cluster_detect.launch" >
+        <arg name="points_node" default="/points_fused" />
+        <arg name="use_gpu" default="true" />
+        <arg name="remove_ground" default="false" />
+        <arg name="downsample_cloud" default="false" />
+        <arg name="leaf_size" default="0.1" />
+        <arg name="cluster_size_min" default="2" />
+        <arg name="cluster_size_max" default="100000" />
+        <arg name="sync" default="false" />
+        <arg name="use_diffnormals" default="false" />
+        <arg name="pose_estimation" default="true" />
+        <arg name="clip_min_height" default="-1.3" />
+        <arg name="clip_max_height" default="0.5" />
+
+        <arg name="keep_lanes" default="false" />
+        <arg name="keep_lane_left_distance" default="5" />
+        <arg name="keep_lane_right_distance" default="5" />
+        <arg name="cluster_merge_threshold" default="1.5" />
+        <arg name="clustering_distance" default="0.75" />
+
+        <arg name="use_vector_map" default="false" />
+        <arg name="wayarea_gridmap_layer" default="wayarea" />
+
+        <arg name="output_frame" default="top_velodyne_link" />
+
+        <arg name="remove_points_upto" default="0.0" />
+
+        <arg name="use_multiple_thres" default="false"/>
+        <arg name="clustering_ranges" default="[15,30,45,60]"/>
+        <arg name="clustering_distances"
+            default="[0.5,1.1,1.6,2.1,2.6]"/>
+    </include>
+
+    <!-- fusion -->
+    <include file="$(find range_vision_fusion)/launch/range_vision_fusion.launch">
+        <arg name="detected_objects_range" default="/detection/lidar_detector/objects"/>
+        <arg name="detected_objects_vision" default="/detection/image_detector/objects"/>
+        <arg name="camera_info_src" default="/front_camera/camera_info"/>
+        <arg name="min_car_dimensions" default="[3,2,2]"/>
+        <arg name="min_person_dimensions" default="[1,2,1]"/>
+        <arg name="min_truck_dimensions" default="[4,2,2]"/>
+        <arg name="sync_topics" default="true"/>
+        <arg name="overlap_threshold" default="0.3"/>
+        <arg name="use_vector_map" default="true"/>
+        <arg name="namespace" default="/detection/fusion_tools"/>
+    </include>
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aichallenge_bringup)/data/aichallenge.rviz" />
+</launch>
