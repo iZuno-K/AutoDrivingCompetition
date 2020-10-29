@@ -117,36 +117,47 @@ void LaneStopper::reset_vehicle_cmd_msg() {
 
 
 void LaneStopper::CtrlCmdCallback(const autoware_msgs::ControlCommandStampedConstPtr& input_msg) {
-    health_checker_.NODE_ACTIVATE();
-    autoware_msgs::ControlCommandStamped ccs;
-    checkCtrl(*input_msg);
-    ccs = lateralLimitCtrl(*input_msg);
-    updatePrevCtrl(ccs);
+  health_checker_.NODE_ACTIVATE();
+  autoware_msgs::ControlCommandStamped ccs;
+  checkCtrl(*input_msg);
+  ccs = lateralLimitCtrl(*input_msg);
+  updatePrevCtrl(ccs);
 
-    double accel, steer;
-    vehicle_cmd_msg_.header.frame_id = input_msg->header.frame_id;
-    vehicle_cmd_msg_.header.stamp = input_msg->header.stamp;
-    vehicle_cmd_msg_.header.seq++;
-    vehicle_cmd_msg_.ctrl_cmd = ccs.cmd;
-    vehicle_cmd_msg_.gear = 64;
+  double accel, steer;
+  vehicle_cmd_msg_.header.frame_id = input_msg->header.frame_id;
+  vehicle_cmd_msg_.header.stamp = input_msg->header.stamp;
+  vehicle_cmd_msg_.header.seq++;
+  vehicle_cmd_msg_.ctrl_cmd = ccs.cmd;
+  vehicle_cmd_msg_.gear = 64;
 
-    // convert measure from radian to normalized angle
-    steer = - (ccs.cmd.steering_angle / PI * 180.0) / 39.4; 
+  // convert measure from radian to normalized angle
+  steer = - (ccs.cmd.steering_angle / PI * 180.0) / 39.4; 
 
-    // limit accel
-    accel = ccs.cmd.linear_acceleration / accel_divide_gain_;
-    accel = std::max(deccel_limit_, std::min(accel, accel_limit_));
-    // low pass filter
-    filtered_accel_ = lowpass_gain_accl_ * filtered_accel_ + (1 - lowpass_gain_accl_) * accel;
-    filtered_steer_ = lowpass_gain_steer_ * filtered_steer_ + (1 - lowpass_gain_steer_) * steer;
-    vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = filtered_accel_;
-    vehicle_cmd_msg_.ctrl_cmd.steering_angle = filtered_steer_;
-    
-    // emergent brake
-    if (brake_flag_) {
-        vehicle_cmd_msg_.ctrl_cmd.linear_velocity = -10.0;
-        vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = -10.0;
+  // limit accel
+  accel = ccs.cmd.linear_acceleration / accel_divide_gain_;
+  accel = std::max(deccel_limit_, std::min(accel, accel_limit_));
+  // low pass filter
+  filtered_accel_ = lowpass_gain_accl_ * filtered_accel_ + (1 - lowpass_gain_accl_) * accel;
+  filtered_steer_ = lowpass_gain_steer_ * filtered_steer_ + (1 - lowpass_gain_steer_) * steer;
+  vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = filtered_accel_;
+  vehicle_cmd_msg_.ctrl_cmd.steering_angle = filtered_steer_;
+
+  // emergent brake
+  if (brake_flag_) {
+    vehicle_cmd_msg_.ctrl_cmd.linear_velocity = -10.0;
+    vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = -10.0;
+  }
+
+  if (!flag_activate_) {
+    // ROS_WARN("[%s]: duration count   %ld", __APP_NAME__, (time(NULL) - start_time_));
+    // ROS_WARN("[%s]: duration seconds %lf", __APP_NAME__, (double)(time(NULL) - start_time_) / CLOCKS_PER_SEC);
+    if ((double)(time(NULL) - start_time_) > initial_wait_time_) {
+        flag_activate_ = true;
     }
+  }
+  if (flag_activate_) {
+    vehicle_cmd_pub.publish(vehicle_cmd_msg_);
+  }
 }
 
 
@@ -158,10 +169,7 @@ void LaneStopper::timer_callback(const ros::TimerEvent& e) {
           flag_activate_ = true;
     }
   }
-
   if (flag_activate_) {
-    vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = 10.0;
-    vehicle_cmd_msg_.ctrl_cmd.steering_angle = 0.0;
     vehicle_cmd_pub.publish(vehicle_cmd_msg_);
   }
 }
@@ -295,7 +303,7 @@ void LaneStopper::run() {
 
     bool_publisher = node_handle_.advertise<std_msgs::Bool>("/brake_flag", 10); // to avoid miss subscription
     vehicle_cmd_pub = node_handle_.advertise<autoware_msgs::VehicleCmd>("/vehicle_cmd", 1, true);
-    timer_ = node_handle_.createTimer(ros::Duration(1.0 / loop_rate_), &LaneStopper::timer_callback, this);
+    // timer_ = node_handle_.createTimer(ros::Duration(1.0 / loop_rate_), &LaneStopper::timer_callback, this);
 
     ros::spin();
 }

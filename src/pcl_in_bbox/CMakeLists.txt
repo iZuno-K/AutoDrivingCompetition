@@ -91,7 +91,14 @@ target_include_directories(pcl_in_bbox PRIVATE
 target_link_libraries(pcl_in_bbox
         pcl_in_bbox_lib)
 
-install(TARGETS pcl_in_bbox pcl_in_bbox_lib
+add_executable(detection_concat src/detection_concat.cpp)
+target_include_directories(detection_concat PRIVATE
+        ${catkin_INCLUDE_DIRS} 
+        include
+        )
+target_link_libraries(detection_concat ${catkin_LIBRARIES})
+
+install(TARGETS pcl_in_bbox pcl_in_bbox_lib detection_concat
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

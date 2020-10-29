@@ -37,6 +37,10 @@ void ROSPixelCloudFusionApp::SyncedCallback(const sensor_msgs::PointCloud2::Cons
 {
 	image_frame_id_ = in_vision_detections->header.frame_id;
 
+	// autoware_msgs::DetectedObjectArray detections = *in_vision_detections;
+	// int* add_counts = new int[detections.objects.size()];
+	// for (size_t j = 0; j < detections.objects.size(); j++) add_counts[j] = 0;
+
 	if (image_frame_id_ == "")
 	{
 		ROS_INFO("[%s] Waiting for Image frame to be available.", __APP_NAME__);
@@ -75,10 +79,32 @@ void ROSPixelCloudFusionApp::SyncedCallback(const sensor_msgs::PointCloud2::Cons
 			h = in_vision_detections->objects[j].height;
 			if ((x <= u) && (u <= x + w) && (y <= v) && (v <= y + h) && (cam_cloud[i].z > 0)) {
 				out_cloud->points.push_back(in_cloud->points[i]);
+				// if (add_counts[j] == 0) {
+				// 	detections.objects[j].header.frame_id = in_cloud->header.frame_id;
+				// 	detections.objects[j].pose.position.x = in_cloud->points[i].x;
+				// 	detections.objects[j].pose.position.y = in_cloud->points[i].y;
+				// 	detections.objects[j].pose.position.z = in_cloud->points[i].z;
+				// }
+				// else {
+				// 	detections.objects[j].pose.position.x += in_cloud->points[i].x;
+				// 	detections.objects[j].pose.position.y += in_cloud->points[i].y;
+				// 	detections.objects[j].pose.position.z += in_cloud->points[i].z;		
+				// }
+				// add_counts[j]++;
 				break;
 			}
 		}
 	}
+
+	// for (size_t j = 0; j < detections.objects.size(); j++) {
+	// 	if (add_counts[j] > 0) {
+	// 		detections.objects[j].pose.position.x /= (float)add_counts[j];
+	// 		detections.objects[j].pose.position.y /= (float)add_counts[j];
+	// 		detections.objects[j].pose.position.z /= (float)add_counts[j];
+	// 	}
+	// } 
+	// publisher_fused_vision_deteciotn_.publish(detections);
+
 	// Publish PCl
 	sensor_msgs::PointCloud2 cloud_msg;
 	pcl::toROSMsg(*out_cloud, cloud_msg);
@@ -173,14 +199,15 @@ void ROSPixelCloudFusionApp::InitializeROSIo(ros::NodeHandle &in_private_handle)
 	ROS_INFO("[%s] Subscribing to... %s", __APP_NAME__, image_detection_src.c_str());
 	ROS_INFO("[%s] Subscribing to... %s", __APP_NAME__, points_src.c_str());
 
-	publisher_fused_cloud_ = node_handle_.advertise<sensor_msgs::PointCloud2>(fused_topic_str, 1);
-	ROS_INFO("[%s] Publishing fused pointcloud in %s", __APP_NAME__, fused_topic_str.c_str());
-
 	cloud_subscriber_ = new message_filters::Subscriber<sensor_msgs::PointCloud2>(node_handle_, points_src, 1);
     vision_detection_subscriber_ = new message_filters::Subscriber<autoware_msgs::DetectedObjectArray>(node_handle_, image_detection_src, 1);
     synchronizer_ = new message_filters::Synchronizer<SyncPolicyT>(SyncPolicyT(10), *cloud_subscriber_, *vision_detection_subscriber_);
 	synchronizer_->registerCallback(boost::bind(&ROSPixelCloudFusionApp::SyncedCallback, this, _1, _2));
 
+	publisher_fused_cloud_ = node_handle_.advertise<sensor_msgs::PointCloud2>(fused_topic_str, 1);
+	ROS_INFO("[%s] Publishing fused pointcloud in %s", __APP_NAME__, fused_topic_str.c_str());
+
+	// publisher_fused_vision_deteciotn_ = node_handle_.advertise<autoware_msgs::DetectedObjectArray>("/detection/vision/position_added", 1);
 
 }
 

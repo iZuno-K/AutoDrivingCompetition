@@ -39,7 +39,7 @@
     </include>
     <!-- to avoid self-detection, set min_measurement_range 4. voxel_leaf_size > 0.1 enables voxel grid down sampling -->
     <node pkg="rostopic" type="rostopic" name="vgf_config" args="pub /config/voxel_grid_distance_filter mypoints_downsampler/ConfigVoxelGridDistanceFilter
-    '{ voxel_leaf_size: 0.01, measurement_range: 300, min_measurement_range: 4}' " output="screen" />]
+    '{ voxel_leaf_size: 0.01, measurement_range: 100, min_measurement_range: 4}' " output="screen" />]
         
     <!-- points densifier -->
     <include file="$(find points_densifier)/launch/points_densifier.launch">
@@ -97,7 +97,7 @@
         <arg name="input_topic" default="/points_densified"/>
         <arg name="baselink_support" default="true"/>
         <arg name="reproduce_result_mode" default="false"/>
-        <arg name="score_threshold" default="0.3" />
+        <arg name="score_threshold" default="0.4" />
         <arg name="nms_overlap_threshold" default="0.5" />
         <arg name="pfe_onnx_file" default="$(find aichallenge_bringup)/data/pfe.onnx"/>
         <arg name="rpn_onnx_file" default="$(find aichallenge_bringup)/data/rpn.onnx"/>
@@ -182,16 +182,16 @@
         <arg name="current_pose_topic" default="/current_pose" />
         <arg name="stop_distance" default="35.0" />
         <arg name="accel_divide_gain" default="1.0" />
-        <arg name="accel_limit" default="0.8" />
-        <arg name="deccel_limit" default="-0.8" />
-        <arg name="lowpass_gain_accl" default="0.3" />
-        <arg name="lowpass_gain_steer" default="0.3" />
+        <arg name="accel_limit" default="0.7" />
+        <arg name="deccel_limit" default="-1.0" />
+        <arg name="lowpass_gain_accl" default="0.0" />
+        <arg name="lowpass_gain_steer" default="0.0" />
 
         <arg name="lateral_accel_limit" default="20.0" />
         <arg name="lateral_jerk_limit" default="5.0" />
         <arg name="loop_rate" default="30.0" /> <!--Hz = 1 / loop_rate-->
         
-        <arg name="initial_wait_time" default="30.0" /> <!--seconds-->
+        <arg name="initial_wait_time" default="0.0" /> <!--seconds-->
     </include>
     
     <!-- BASIC LANE FOLLOW RULES AND WAYPOINTS ....................................................... -->
@@ -208,7 +208,7 @@
         <arg name="replanning_mode" default="true" />
         <arg name="accel_limit" default="5.0" />
         <arg name="decel_limit" default="5.0" />
-        <arg name="velocity_max" default="22.2" />
+        <arg name="velocity_max" default="22.0" />
     </include>
 
     <!-- CONTROL (FOLLOW TRAJECTORY) .............................................................................. -->

@@ -58,6 +58,7 @@
 #include <Eigen/Eigen>
 
 #include <autoware_msgs/DetectedObjectArray.h>
+#include <algorithm>
 
 namespace std {
 	template <>
@@ -93,12 +94,11 @@ class ROSPixelCloudFusionApp
 	float                               fx_, fy_, cx_, cy_;
 	pcl::PointCloud<pcl::PointXYZRGB>   colored_cloud_;
 
-	typedef
-	message_filters::sync_policies::ApproximateTime<sensor_msgs::PointCloud2,autoware_msgs::DetectedObjectArray> SyncPolicyT;
-
+	typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::PointCloud2,autoware_msgs::DetectedObjectArray> SyncPolicyT;
 	message_filters::Subscriber<sensor_msgs::PointCloud2> *cloud_subscriber_;
 	message_filters::Subscriber<autoware_msgs::DetectedObjectArray> *vision_detection_subscriber_;
 	message_filters::Synchronizer<SyncPolicyT> *synchronizer_;
+	// ros::Publisher publisher_fused_vision_deteciotn_;
 
 	pcl::PointXYZ TransformPoint(const pcl::PointXYZ &in_point, const tf::StampedTransform &in_transform);
 
