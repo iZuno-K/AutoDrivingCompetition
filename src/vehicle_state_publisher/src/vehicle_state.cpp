@@ -11,6 +11,9 @@ void VehicleStatePublisher::init_varibles(){
   current_velocity_imu_x = 0.0;
   current_velocity_imu_y = 0.0;
   current_velocity_imu_z = 0.0;
+  current_angular_velocity_imu_x = 0.0;
+  current_angular_velocity_imu_y = 0.0;
+  current_angular_velocity_imu_z = 0.0;
   offset_imu_x = 0.0;
   offset_imu_y = 0.0;
   offset_imu_z = 0.0;
@@ -20,13 +23,13 @@ void VehicleStatePublisher::init_varibles(){
   previous_imu_roll = 0.0;
   previous_time =  ros::Time::now();
   imu_sub_ = nh.subscribe("imu_raw", 10, &VehicleStatePublisher::imu_callback, this);
-  rough_vel_pub = nh.advertise<geometry_msgs::TwistStamped>("fast_current_vel", 10);
+  f_vel_pub = nh.advertise<geometry_msgs::TwistStamped>("fast_current_vel", 10);
   // ros::Timer timer = nh.createTimer(ros::Duration(0.1), VehicleStatePublisher::vel_pub_timer);
 }
 
 void VehicleStatePublisher::imu_callback(const sensor_msgs::Imu::Ptr& input)
 {
-  std::cout << __func__ << std::endl;
+  // std::cout << __func__ << std::endl;
   const ros::Time current_time = input->header.stamp;
   const double diff_time = (current_time - previous_time).toSec();
 
@@ -56,16 +59,23 @@ void VehicleStatePublisher::imu_callback(const sensor_msgs::Imu::Ptr& input)
     imu.angular_velocity.x = diff_imu_roll / diff_time;
     imu.angular_velocity.y = diff_imu_pitch / diff_time;
     imu.angular_velocity.z = diff_imu_yaw / diff_time;
+    current_angular_velocity_imu_x = diff_imu_roll / diff_time;
+    current_angular_velocity_imu_y = diff_imu_pitch / diff_time;
+    current_angular_velocity_imu_z = diff_imu_yaw / diff_time;
+
   }
   else
   {
-    ROS_INFO("NOT UPDATED");
+    current_angular_velocity_imu_x = 0;
+    current_angular_velocity_imu_y = 0;
+    current_angular_velocity_imu_z = 0;
+    // ROS_INFO("NOT UPDATED");
     imu.angular_velocity.x = 0;
     imu.angular_velocity.y = 0;
     imu.angular_velocity.z = 0;
   }
 
-  imu_calc(input->header.stamp);
+  calc_vel_from_imu(input->header.stamp);
 
   previous_time = current_time;
   previous_imu_roll = imu_roll;
@@ -97,9 +107,10 @@ double VehicleStatePublisher::calcDiffForRadian(const double lhs_rad, const doub
   return diff_rad;
 }
 
-void VehicleStatePublisher::imu_calc(ros::Time current_time)
+void VehicleStatePublisher::calc_vel_from_imu(ros::Time current_time)
 {
   double diff_time = (current_time - previous_time).toSec();
+  std::cout << "time " << diff_time << "\n";
 
   double diff_imu_roll = imu.angular_velocity.x * diff_time;
   double diff_imu_pitch = imu.angular_velocity.y * diff_time;
@@ -123,9 +134,9 @@ void VehicleStatePublisher::imu_calc(ros::Time current_time)
   double accY = std::sin(current_pose_imu.yaw) * accX2 + std::cos(current_pose_imu.yaw) * accY2;
   double accZ = accZ2;
 
-  offset_imu_x += current_velocity_imu_x * diff_time + accX * diff_time * diff_time / 2.0;
-  offset_imu_y += current_velocity_imu_y * diff_time + accY * diff_time * diff_time / 2.0;
-  offset_imu_z += current_velocity_imu_z * diff_time + accZ * diff_time * diff_time / 2.0;
+  // offset_imu_x += current_velocity_imu_x * diff_time + accX * diff_time * diff_time / 2.0;
+  // offset_imu_y += current_velocity_imu_y * diff_time + accY * diff_time * diff_time / 2.0;
+  // offset_imu_z += current_velocity_imu_z * diff_time + accZ * diff_time * diff_time / 2.0;
 
   current_velocity_imu_x += accX * diff_time;
   current_velocity_imu_y += accY * diff_time;
@@ -142,11 +153,29 @@ void VehicleStatePublisher::imu_calc(ros::Time current_time)
   // predict_pose_imu.pitch = previous_pose.pitch + offset_imu_pitch;
   // predict_pose_imu.yaw = previous_pose.yaw + offset_imu_yaw;
 
-  previous_time = current_time;
+  // previous_time = current_time;
+}
+
+void VehicleStatePublisher::set_twist_stamped(){
+  twist_.header.stamp = ros::Time::now();
+  twist_.twist.linear.x = current_velocity_imu_x;
+  twist_.twist.linear.y = current_velocity_imu_y;
+  twist_.twist.linear.z = current_velocity_imu_z;
+  twist_.twist.angular.x = current_angular_velocity_imu_x;
+  twist_.twist.angular.y = current_angular_velocity_imu_y;
+  twist_.twist.angular.z = current_angular_velocity_imu_z;
 }
 
 void VehicleStatePublisher::vel_pub_timer(const ros::TimerEvent& e){}
 
 void VehicleStatePublisher::run() {
-  ros::spin();
+  ros::Rate loop_rate(30);
+  while (ros::ok())
+  {
+    set_twist_stamped();
+    f_vel_pub.publish(twist_);
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
+  // ros::spin();
 }

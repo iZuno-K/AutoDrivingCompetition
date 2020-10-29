@@ -1,7 +1,7 @@
 #ifndef TEST_VEHICLE_STATE_PUBLISHER_H
 #define TEST_VEHICLE_STATE_PUBLISHER_H
 
-#include <sstream>
+// #include <sstream>
 
 // ROS packages
 #include "ros/ros.h"
@@ -44,20 +44,25 @@ private:
 
   // Callback and the method of which
     void imu_callback(const sensor_msgs::Imu::Ptr& input);
-    void imu_calc(ros::Time current_time);
+    void calc_vel_from_imu(ros::Time current_time);
+    void set_twist_stamped();
     void vel_pub_timer(const ros::TimerEvent& e);
 
     ros::NodeHandle nh;
     ros::Subscriber imu_sub_;
-    ros::Publisher rough_vel_pub;
+    ros::Publisher f_vel_pub;
     // ros::NodeHandle private_nh("~");
 
     sensor_msgs::Imu imu;
     ros::Time previous_time;
+    geometry_msgs::TwistStamped twist_;
     pose current_pose_imu, predict_pose_imu;
     double current_velocity_imu_x;
     double current_velocity_imu_y;
     double current_velocity_imu_z;
+    double current_angular_velocity_imu_x;
+    double current_angular_velocity_imu_y;
+    double current_angular_velocity_imu_z;
     double previous_imu_roll;
     double previous_imu_pitch;
     double previous_imu_yaw;
