@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-SET(pkg_name vehicle_state_publisher)
+SET(pkg_name vehicle_odm_controller)
 project(${pkg_name})
 
 find_package(autoware_msgs REQUIRED)
@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   autoware_config_msgs
   geometry_msgs
   autoware_msgs
+  nav_msgs
   tf
   tf2
   tf2_ros
@@ -25,6 +26,7 @@ catkin_package(CATKIN_DEPENDS
         sensor_msgs
         autoware_msgs
         autoware_config_msgs
+        nav_msgs
         tf
         tf2
         tf2_ros

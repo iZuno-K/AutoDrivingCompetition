@@ -2,12 +2,12 @@
 #include "vehicle_state.hpp"
 #define __APP_NAME__ "vehicle_state_publiser"
 
-// using namespace vehicle_state_publisher;
+// using namespace vehicle_odm_controller;
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, __APP_NAME__);
-  VehicleStatePublisher vsp;
+  VehicleOdmController vsp;
   vsp.run();
   return 0;
 }

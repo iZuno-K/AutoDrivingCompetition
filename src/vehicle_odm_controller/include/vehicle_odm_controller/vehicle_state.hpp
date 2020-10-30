@@ -1,5 +1,5 @@
-#ifndef TEST_VEHICLE_STATE_PUBLISHER_H
-#define TEST_VEHICLE_STATE_PUBLISHER_H
+#ifndef TEST_VEHICLE_ODM_CONTROLLER_H
+#define TEST_VEHICLE_ODM_CONTROLLER_H
 
 // #include <sstream>
 
@@ -10,29 +10,17 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Float32.h>
-// #include <Quaternion.h>
+#include <nav_msgs/Odometry.h> // lsiten odometory
+#include <autoware_msgs/ControlCommandStamped.h> // publish acclel command
 
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_datatypes.h>
 
-
-
-// namespace vehicle_state_publisher {
-    
-typedef struct {
-  double x;
-  double y;
-  double z;
-  double roll;
-  double pitch;
-  double yaw;
-} pose;
-
-class VehicleStatePublisher {
+class VehicleOdmController {
 public:
-    VehicleStatePublisher();
+    VehicleOdmController();
     void run();
 
 private:
@@ -43,7 +31,7 @@ private:
     void init_varibles();
 
   // Callback and the method of which
-    void imu_callback(const sensor_msgs::Imu::Ptr& input);
+    void odm_callback(const sensor_msgs::Imu::Ptr& input);
     void calc_vel_from_imu(ros::Time current_time);
     void set_twist_stamped();
     void vel_pub_timer(const ros::TimerEvent& e);
@@ -53,10 +41,8 @@ private:
     ros::Publisher f_vel_pub;
     // ros::NodeHandle private_nh("~");
 
-    sensor_msgs::Imu imu;
+    nav_msgs::Odometry odom;
     ros::Time previous_time;
-    geometry_msgs::TwistStamped twist_;
-    pose current_pose_imu, predict_pose_imu;
     double current_velocity_imu_x;
     double current_velocity_imu_y;
     double current_velocity_imu_z;
@@ -69,6 +55,4 @@ private:
     double offset_imu_x, offset_imu_y, offset_imu_z, offset_imu_roll, offset_imu_pitch, offset_imu_yaw;
 };
 
-// }  // namespace vehicle_state_publisher
-
-#endif //TEST_VEHICLE_STATE_PUBLISHER_H
+#endif //TEST_VEHICLE_ODM_CONTROLLER_H
