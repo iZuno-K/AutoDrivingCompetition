@@ -69,18 +69,18 @@ class LaneStopper {
     autoware_msgs::ControlCommandStamped lateralLimitCtrl(const autoware_msgs::ControlCommandStamped& msg);
 
     void reset_vehicle_cmd_msg();
-    const double a[6] = {-0.2582730920132578,
+    const double a[6] = {-0.2601942853211042,
                         -0.26430773408498043,
                         -0.24750019525741684,
                         4.453371279902778,
-                        3.7920438197948,
+                        3.2949822567293885,
                         3.999999998458709,
                         };
-    const double b[6] = {-361.2845319741398,
+    const double b[6] = {-362.3401242707385,
                         -355.9439251504078,
                         -347.22055328879355,
                         -112.07512446590951,
-                        -212.38461245157148,
+                        -250.69273910698217,
                         101.0462950010089
                         };
 
@@ -95,6 +95,7 @@ class LaneStopper {
     double loop_rate_, lateral_accel_limit_, lateral_jerk_limit_, wheel_base_;
     double initial_wait_time_;
     bool flag_activate_;
+    bool is_in_intersection1_, is_in_intersection2_;
     time_t start_time_;
     // dataset
     StampedValue sa_prev_;

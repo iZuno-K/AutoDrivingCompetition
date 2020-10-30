@@ -105,19 +105,6 @@
         <arg name="clustering_distances" default="[0.5,1.1,1.6,2.1,2.6]"/>
     </include>
 
-    <!-- fusion -->
-    <!-- <include file="$(find range_vision_fusion)/launch/range_vision_fusion.launch">
-        <arg name="detected_objects_range" default="/detection/lidar_detector/objects"/>
-        <arg name="detected_objects_vision" default="/detection/image_detector/objects"/>
-        <arg name="camera_info_src" default="/front_camera/camera_info"/>
-        <arg name="min_car_dimensions" default="[3,2,2]"/>
-        <arg name="min_person_dimensions" default="[1,2,1]"/>
-        <arg name="min_truck_dimensions" default="[4,2,2]"/>
-        <arg name="sync_topics" default="true"/>
-        <arg name="overlap_threshold" default="0.3"/>
-        <arg name="use_vector_map" default="true"/>
-        <arg name="namespace" default="/detection/fusion_tools"/>
-    </include> -->
 
     <!-- point pillar -->
     <arg name="input_topic" default="/top_velodyne/points_raw"/>
@@ -146,6 +133,20 @@
     <include file="$(find pcl_in_bbox)/launch/detection_concat.launch">
         <arg name="topic1" default="detection/lidar_detector/objects" /> 
         <arg name="topic2" default="detection/lidar_detector/objects2" /> 
+    </include>
+
+    <!-- fusion -->
+    <include file="$(find range_vision_fusion)/launch/range_vision_fusion.launch">
+        <arg name="detected_objects_range" default="/detection/concat"/>
+        <arg name="detected_objects_vision" default="/detection/image_detector/objects"/>
+        <arg name="camera_info_src" default="/front_camera/camera_info"/>
+        <arg name="min_car_dimensions" default="[3,2,2]"/>
+        <arg name="min_person_dimensions" default="[1,2,1]"/>
+        <arg name="min_truck_dimensions" default="[4,2,2]"/>
+        <arg name="sync_topics" default="true"/>
+        <arg name="overlap_threshold" default="0.3"/>
+        <arg name="use_vector_map" default="true"/>
+        <arg name="namespace" default="/detection/fusion_tools"/>
     </include>
 
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aichallenge_bringup)/data/aichallenge.rviz" />

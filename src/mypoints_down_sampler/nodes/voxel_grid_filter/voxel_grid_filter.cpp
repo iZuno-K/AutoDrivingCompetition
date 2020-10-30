@@ -149,6 +149,8 @@ int main(int argc, char** argv)
   }
   private_nh.param<double>("measurement_range", measurement_range, MAX_MEASUREMENT_RANGE);
   private_nh.param<double>("min_measurement_range", min_measurement_range, MIN_MEASUREMENT_RANGE);
+  private_nh.param<double>("voxel_leaf_size", voxel_leaf_size, 0.01);
+
   // Publishers
   filtered_points_pub = nh.advertise<sensor_msgs::PointCloud2>("/filtered_points", 10);
   points_downsampler_info_pub = nh.advertise<mypoints_downsampler::PointsDownsamplerInfo>("/points_downsampler_info", 1000);

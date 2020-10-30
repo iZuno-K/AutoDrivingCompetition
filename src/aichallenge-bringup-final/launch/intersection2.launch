@@ -30,7 +30,7 @@
     <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
     </include>
 
-    <include file="$(find aichallenge_bringup)/launch/debug.launch">
+    <include file="$(find aichallenge_bringup)/launch/seiri.launch">
     </include>
     <!-- <include file="$(find aichallenge_bringup)/launch/user_nodes.launch">
     </include> -->

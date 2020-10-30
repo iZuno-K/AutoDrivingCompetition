@@ -58,7 +58,8 @@ bool LaneStopper::stopIntersection(const autoware_msgs::DetectedObjectArray &inp
             if (objectInIncomingLane(obj)) {
                 ROS_INFO("[%s] Object in the incomming lane.", __APP_NAME__);
                 // 自車が交差点1にいるとき
-                if (inIntersection1(mycarpose)) {
+                is_in_intersection1_ = inIntersection1(mycarpose);
+                if (is_in_intersection1_) {
                     if (objectIncomingIntersection1(obj)) {
                         if (dist(obj.pose, mycarpose.pose) < stop_distance_) {
                             // make_stop_waypoints();
@@ -68,7 +69,8 @@ bool LaneStopper::stopIntersection(const autoware_msgs::DetectedObjectArray &inp
                     }
                 }
                 // 自車が交差点2にいるとき
-                else if (inIntersection2(mycarpose)) {
+                is_in_intersection2_ = inIntersection2(mycarpose);
+                if (is_in_intersection2_) {
                     // 対向車線上の避けるべきいちに対向車がきていたら
                     if (objectIncomingIntersection2(obj)) {
                         if (dist(obj.pose, mycarpose.pose) < stop_distance_) {
@@ -146,6 +148,12 @@ void LaneStopper::CtrlCmdCallback(const autoware_msgs::ControlCommandStampedCons
   if (brake_flag_) {
     vehicle_cmd_msg_.ctrl_cmd.linear_velocity = -10.0;
     vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = -10.0;
+  }
+  else {
+    if (is_in_intersection1_ || is_in_intersection2_) {
+      // force to across the interseciton as soon as possible, if there is no obstacle
+      if (vehicle_cmd_msg_.ctrl_cmd.linear_acceleration < 0.0) vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = 0.4;
+    }
   }
 
   if (!flag_activate_) {
@@ -271,7 +279,8 @@ autoware_msgs::ControlCommandStamped LaneStopper::lateralLimitCtrl(const autowar
 
 
 LaneStopper::LaneStopper() : node_handle_(), private_node_handle_("~"), tf_listener_(), brake_flag_(false), 
-filtered_accel_(0.0), filtered_steer_(0.0), health_checker_(node_handle_, private_node_handle_), flag_activate_(false) {
+filtered_accel_(0.0), filtered_steer_(0.0), health_checker_(node_handle_, private_node_handle_), flag_activate_(false),
+is_in_intersection1_(false), is_in_intersection2_(false) {
     private_node_handle_.param("stop_distance", stop_distance_, 20.0);
     private_node_handle_.param("objects_topic", objects_topic_, std::string("/detection/lidar_detector/objects"));
     private_node_handle_.param("current_pose_topic", pose_topic_, std::string("/current_pose"));
