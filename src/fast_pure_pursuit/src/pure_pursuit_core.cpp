@@ -99,6 +99,7 @@ void PurePursuitNode::initForROS()
 void PurePursuitNode::callbackFromOdom(const nav_msgs::Odometry::ConstPtr& msg) {
   current_linear_velocity_ = msg->twist.twist.linear.x;
   pp_.setCurrentVelocity(current_linear_velocity_);
+  is_velocity_set_ = true;
 }
 
 void PurePursuitNode::run()
@@ -108,7 +109,7 @@ void PurePursuitNode::run()
   while (ros::ok())
   {
     ros::spinOnce();
-    if (!is_pose_set_ || !is_waypoint_set_ || !is_velocity_set_)
+    if (!is_pose_set_ && !is_waypoint_set_ && !is_velocity_set_)
     {
       ROS_WARN("Necessary topics are not subscribed yet ... ");
       loop_rate.sleep();
@@ -147,9 +148,9 @@ void PurePursuitNode::run()
     publishDeviationCurrentPosition(
       pp_.getCurrentPose().position, pp_.getCurrentWaypoints());
 
-    // is_pose_set_ = false;
-    // is_velocity_set_ = false;
-    // is_waypoint_set_ = false;
+    is_pose_set_ = false;
+    is_velocity_set_ = false;
+    is_waypoint_set_ = false;
 
     loop_rate.sleep();
   }

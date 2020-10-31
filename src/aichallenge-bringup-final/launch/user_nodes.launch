@@ -177,7 +177,7 @@
         <arg name="objects_topic" default="/detection/lidar_detector/objects" />
         <arg name="current_pose_topic" default="/current_pose" />
         <arg name="stop_distance" default="35.0" />  <!-- when stop at the intersection -->
-        <arg name="accel_divide_gain" default="1.01" />
+        <arg name="accel_divide_gain" default="2.0" />
         <arg name="accel_limit" default="1.0" />
         <arg name="deccel_limit" default="-1.0" />
         <arg name="lowpass_gain_accl" default="0.0" />
