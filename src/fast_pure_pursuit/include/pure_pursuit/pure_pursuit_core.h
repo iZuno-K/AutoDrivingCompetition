@@ -97,6 +97,8 @@ private:
   // the next waypoint must be outside of this threshold.
   double minimum_lookahead_distance_;
 
+  bool all_initialized_;
+
   // callbacks
   void callbackFromConfig(
     const autoware_config_msgs::ConfigWaypointFollowerConstPtr& config);

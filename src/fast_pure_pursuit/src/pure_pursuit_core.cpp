@@ -35,6 +35,7 @@ PurePursuitNode::PurePursuitNode()
   , const_velocity_(5.0)
   , lookahead_distance_ratio_(2.0)
   , minimum_lookahead_distance_(6.0)
+  , all_initialized_(false)
 {
   initForROS();
   health_checker_ptr_ =
@@ -109,6 +110,16 @@ void PurePursuitNode::run()
   while (ros::ok())
   {
     ros::spinOnce();
+    if (!all_initialized_) {
+      if (!is_pose_set_ || !is_waypoint_set_ || !is_velocity_set_) {
+          ROS_WARN("Necessary topics are not subscribed yet ... ");
+          loop_rate.sleep();
+          continue;
+      }
+      else {
+        all_initialized_ = true;
+      }
+    }
     if (!is_pose_set_ && !is_waypoint_set_ && !is_velocity_set_)
     {
       ROS_WARN("Necessary topics are not subscribed yet ... ");
