@@ -176,8 +176,8 @@
     <include file="$(find lane_stopper)/launch/lane_stopper.launch">
         <arg name="objects_topic" default="/detection/lidar_detector/objects" />
         <arg name="current_pose_topic" default="/current_pose" />
-        <arg name="stop_distance" default="35.0" />  <!-- when stop at the intersection -->
-        <arg name="accel_divide_gain" default="2.0" />
+        <arg name="stop_distance" default="38.0" />  <!-- when stop at the intersection -->
+        <arg name="accel_divide_gain" default="4.0" />
         <arg name="accel_limit" default="1.0" />
         <arg name="deccel_limit" default="-1.0" />
         <arg name="lowpass_gain_accl" default="0.0" />
@@ -187,7 +187,7 @@
         <arg name="lateral_jerk_limit" default="5.0" />
         <arg name="loop_rate" default="12.0" /> <!--Hz = 1 / loop_rate-->
         
-        <arg name="initial_wait_time" default="0.0" /> <!--seconds-->
+        <arg name="initial_wait_time" default="20.0" /> <!--seconds-->
         <arg name="intersection_force_accel" default="0.3" />
     </include>
     
