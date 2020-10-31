@@ -33,8 +33,8 @@
     </include> -->
     <!-- <include file="$(find aichallenge_bringup)/launch/nopp.launch">
     </include> -->
-    <include file="$(find aichallenge_bringup)/launch/user_nodes.launch">
-    </include>
+    <!-- <include file="$(find aichallenge_bringup)/launch/user_nodes.launch">
+    </include> -->
 
     <include file="$(find map_file)/launch/lanelet2_map_loader.launch">
         <arg name="file_name" default="$(arg lanelet2_osm_path)"/>
