@@ -1,11 +1,36 @@
 #include "vehicle_state.hpp"
 #define __APP_NAME__ "vehicle_odm_controller"
 
+
+void VehicleOdmController::write_header(std::ofstream &ofs, std::string time, std::string a_real, std::string v_real, std::string a_vcmd) {
+    ofs << time << ","<< a_real << "," << v_real << "," << a_vcmd << std::endl;
+}
+
+template<typename FloatLike>
+void VehicleOdmController::write_row(std::ofstream &ofs, FloatLike time, FloatLike a_real, FloatLike v_real, FloatLike a_vcmd) {
+    ofs << time << ","<< a_real << "," << v_real << "," << a_vcmd << std::endl;
+}
+
+
+void VehicleOdmController::record_csv(std::string filename){
+  std::ofstream ofs_(filename.c_str());
+  write_header(ofs_, "time", "a_real", "v_real", "a_vcmd");
+  ros::Rate loop_rate(10);
+  while (ros::ok())
+  {
+    const double now_ = ros::Time::now().toSec();
+    if (ofs_) {write_row(ofs_, now_, ax_odm, vx_odm, ax_cmd);}
+    std::cout << vx_odm << "\t" << ax_odm << "\t";
+    std::cout << vx_cmd << "\t" << ax_cmd << "\n";
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
+}
+
 VehicleOdmController::VehicleOdmController(){
   // init_odom();
   // init_vcmd();
   init_sync();
-  
 }
 
 void VehicleOdmController::init_odom(){
@@ -83,8 +108,9 @@ void VehicleOdmController::run() {
   while (ros::ok())
   {
     ros::spinOnce();
-    std::cout << vx_odm << "\t" << ax_odm << "\t";
-    std::cout << vx_cmd << "\t" << ax_cmd << "\n";
+    // std::cout << vx_odm << "\t" << ax_odm << "\t";
+    // std::cout << vx_cmd << "\t" << ax_cmd << "\n";
     loop_rate.sleep();
   }
 }
+

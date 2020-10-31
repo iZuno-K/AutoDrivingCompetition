@@ -22,7 +22,7 @@ class BrakingCtrl:
         # init const values
         # m/s, used for detect velocity limit
         self.vel_limit = 28 * (10 ** 3) / (3600)
-        self.rate = rospy.Rate(12)  # 12hz
+        self.rate = rospy.Rate(10)  # 12hz
         self.cmd_msg = VehicleCmd()
         self.cmd_msg.gear = 64  # Drive
 
@@ -51,19 +51,20 @@ class BrakingCtrl:
             self.vel_norm = math.sqrt(
                 self.vel_x**2 + self.vel_y**2 + self.vel_z**2)
 
-        if self.vel_norm > self.vel_limit:
-            km_p_h = self.vel_norm * 3600. / 1000
-            rospy.loginfo(" %s is MA ZU I DE SU YO !" % km_p_h)
-            self.cmd_msg.ctrl_cmd.linear_acceleration = -1
-            self.pub_accel.publish(self.cmd_msg)
-            pass
+        # if self.vel_norm > self.vel_limit:
+        #     km_p_h = self.vel_norm * 3600. / 1000
+        #     rospy.loginfo(" %s is MA ZU I DE SU YO !" % km_p_h)
+        #     self.cmd_msg.ctrl_cmd.linear_acceleration = -1
+        #     self.pub_accel.publish(self.cmd_msg)
+        #     pass
 
     def run(self):
         rospy.loginfo("[BrakeCtrl] start")
         while 1:
             if self.set_bake:
                 rospy.loginfo("[BrakeCtrl] I KI SU GI II !!")
-                self.cmd_msg.ctrl_cmd.linear_acceleration = 1
+                self.cmd_msg.header.stamp = rospy.Time.now()
+                self.cmd_msg.ctrl_cmd.linear_acceleration = 0.5
                 self.pub_accel.publish(self.cmd_msg)
             else:
                 # rospy.loginfo(" uhoku ")

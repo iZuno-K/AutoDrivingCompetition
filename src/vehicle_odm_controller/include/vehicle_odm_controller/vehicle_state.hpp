@@ -2,6 +2,8 @@
 #define TEST_VEHICLE_ODM_CONTROLLER_H
 
 // #include <sstream>
+#include <iostream>
+#include <fstream>
 
 // ROS packages
 #include <iostream>
@@ -29,6 +31,7 @@ class VehicleOdmController {
 public:
   VehicleOdmController();
   void run();
+  void record_csv(std::string filename);
 
 private:
   // Def synclonizers
@@ -47,6 +50,11 @@ private:
   void vehicle_cmd_callback(const autoware_msgs::VehicleCmd::Ptr& input);
   void sync_odm_cmd_callback(const nav_msgs::Odometry::ConstPtr &in_1, const autoware_msgs::VehicleCmd::ConstPtr &in_2);
 
+  // for log writer as csv
+  void write_header(std::ofstream &ofs, std::string time, std::string a_real, std::string v_real, std::string a_vcmd);
+  template<typename FloatLike>
+  void write_row(std::ofstream &ofs, FloatLike time, FloatLike a_real, FloatLike v_real, FloatLike a_vcmd);
+
   ros::NodeHandle nh;
   ros::Subscriber odm_sub, vehicle_cmd_sub;
   ros::Publisher f_vel_pub;
@@ -56,5 +64,7 @@ private:
   double vx_odm, vx_odm_prev, ax_odm, ax_odm_prev;
   double vx_cmd, vx_cmd_prev, ax_cmd, ax_cmd_prev;
 };
+
+
 
 #endif //TEST_VEHICLE_ODM_CONTROLLER_H
