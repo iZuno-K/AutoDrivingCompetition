@@ -47,7 +47,7 @@ include_directories(
         Eigen3::Eigen
 )
 
-SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
+SET(CMAKE_CXX_FLAGS "-O3 -g -Wall ${CMAKE_CXX_FLAGS}")
 
 FILE(GLOB_RECURSE SRC_FILES src/*.cpp)
 
