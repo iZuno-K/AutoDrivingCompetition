@@ -38,7 +38,7 @@ private:
 
   // Not ROS specific func.
     void init_odom();
-    void init_vcd();
+    void init_vcmd();
 
   // Callback and the method of which
     void odm_callback(const nav_msgs::Odometry::Ptr& input);

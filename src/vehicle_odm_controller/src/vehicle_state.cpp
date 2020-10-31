@@ -2,16 +2,23 @@
 #define __APP_NAME__ "vehicle_odm_controller"
 
 VehicleOdmController::VehicleOdmController(){
+  previous_time =  ros::Time::now();
   init_odom();
+  init_vcmd();
 }
 
 void VehicleOdmController::init_odom(){
-  previous_time =  ros::Time::now();
   vx_odm = 0;
   vx_odm_prev = 0;
   ax_odm = 0;
   ax_odm_prev = 0;
   odm_sub = nh.subscribe("odom", 10, &VehicleOdmController::odm_callback, this);
+}
+
+void VehicleOdmController::init_vcmd(){
+  vx_cmd = 0;
+  ax_cmd = 0;
+  vehicle_cmd_sub = nh.subscribe("vehicle_cmd", 10, &VehicleOdmController::vehicle_cmd_callback, this);
 }
 
 void VehicleOdmController::odm_callback(const nav_msgs::Odometry::Ptr& input)
