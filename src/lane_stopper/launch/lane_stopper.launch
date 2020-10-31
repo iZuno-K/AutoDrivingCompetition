@@ -14,6 +14,7 @@
   <arg name="loop_rate" default="30.0" /> <!--Hz = 1 / loop_rate-->
 
   <arg name="initial_wait_time" default="50.0" /> <!--seconds-->
+  <arg name="intersection_force_accel" default="0.4" />
   
   <node pkg="lane_stopper" type="lane_stopper" name="lane_stopper" output="screen">
     <param name="objects_topic" value="$(arg objects_topic)" />
@@ -29,6 +30,7 @@
     <param name="lateral_jerk_limit" value="$(arg lateral_jerk_limit)" />
     <param name="loop_rate" value="$(arg loop_rate)" /> <!--Hz = 1 / loop_rate-->
     <param name="initial_wait_time" value="$(arg initial_wait_time)" /> <!--seconds-->
+    <param name="intersection_force_accel" value="$(arg intersection_force_accel)" /> <!--seconds-->
   </node>
   
   <!-- Launch brake manager node -->

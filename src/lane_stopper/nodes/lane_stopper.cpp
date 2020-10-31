@@ -102,18 +102,18 @@ void LaneStopper::syncedDetectionsCallback(const autoware_msgs::DetectedObjectAr
 }
 
 void LaneStopper::reset_vehicle_cmd_msg() {
-  vehicle_cmd_msg_.twist_cmd.twist.linear.x = 0;
-  vehicle_cmd_msg_.twist_cmd.twist.angular.z = 0;
-  vehicle_cmd_msg_.mode = 0;
-  vehicle_cmd_msg_.gear = 0;
-  vehicle_cmd_msg_.lamp_cmd.l = 0;
-  vehicle_cmd_msg_.lamp_cmd.r = 0;
-  vehicle_cmd_msg_.accel_cmd.accel = 0;
-  vehicle_cmd_msg_.brake_cmd.brake = 0;
-  vehicle_cmd_msg_.steer_cmd.steer = 0;
-  vehicle_cmd_msg_.ctrl_cmd.linear_velocity = 0;
-  vehicle_cmd_msg_.ctrl_cmd.steering_angle = 0;
-  vehicle_cmd_msg_.emergency = 0;
+  vehicle_cmd_msg_.twist_cmd.twist.linear.x = 0.0;
+  vehicle_cmd_msg_.twist_cmd.twist.angular.z = 0.0;
+  vehicle_cmd_msg_.mode = 0.0;
+  vehicle_cmd_msg_.gear = 0.0;
+  vehicle_cmd_msg_.lamp_cmd.l = 0.0;
+  vehicle_cmd_msg_.lamp_cmd.r = 0.0;
+  vehicle_cmd_msg_.accel_cmd.accel = 0.0;
+  vehicle_cmd_msg_.brake_cmd.brake = 0.0;
+  vehicle_cmd_msg_.steer_cmd.steer = 0.0;
+  vehicle_cmd_msg_.ctrl_cmd.linear_velocity = 0.0;
+  vehicle_cmd_msg_.ctrl_cmd.steering_angle = 0.0;
+  vehicle_cmd_msg_.emergency = 0.0;
 }
 
 
@@ -144,6 +144,10 @@ void LaneStopper::CtrlCmdCallback(const autoware_msgs::ControlCommandStampedCons
   vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = filtered_accel_;
   vehicle_cmd_msg_.ctrl_cmd.steering_angle = filtered_steer_;
 
+  // publish_vehicle_cmd();
+}
+
+void LaneStopper::publish_vehicle_cmd() {
   // emergent brake
   if (brake_flag_) {
     vehicle_cmd_msg_.ctrl_cmd.linear_velocity = -10.0;
@@ -152,7 +156,8 @@ void LaneStopper::CtrlCmdCallback(const autoware_msgs::ControlCommandStampedCons
   else {
     if (is_in_intersection1_ || is_in_intersection2_) {
       // force to across the interseciton as soon as possible, if there is no obstacle
-      if (vehicle_cmd_msg_.ctrl_cmd.linear_acceleration < 0.0) vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = 0.4;
+      // if (vehicle_cmd_msg_.ctrl_cmd.linear_acceleration < 0.0) 
+      vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = intersection_force_accel_;
     }
   }
 
@@ -170,16 +175,7 @@ void LaneStopper::CtrlCmdCallback(const autoware_msgs::ControlCommandStampedCons
 
 
 void LaneStopper::timer_callback(const ros::TimerEvent& e) {
-  if (!flag_activate_) {
-      // ROS_WARN("[%s]: duration count   %ld", __APP_NAME__, (time(NULL) - start_time_));
-      // ROS_WARN("[%s]: duration seconds %lf", __APP_NAME__, (double)(time(NULL) - start_time_) / CLOCKS_PER_SEC);
-      if ((double)(time(NULL) - start_time_) > initial_wait_time_) {
-          flag_activate_ = true;
-    }
-  }
-  if (flag_activate_) {
-    vehicle_cmd_pub.publish(vehicle_cmd_msg_);
-  }
+  publish_vehicle_cmd();
 }
 
 // --------------------------------------------------------------------------
@@ -296,6 +292,7 @@ is_in_intersection1_(false), is_in_intersection2_(false) {
     private_node_handle_.param("loop_rate", loop_rate_, 30.0);
 
     private_node_handle_.param("initial_wait_time", initial_wait_time_, 50.0);
+    private_node_handle_.param("intersection_force_accel", intersection_force_accel_, 0.4f);
     start_time_ = time(NULL);
 
     LaneStopper::reset_vehicle_cmd_msg();
@@ -312,7 +309,7 @@ void LaneStopper::run() {
 
     bool_publisher = node_handle_.advertise<std_msgs::Bool>("/brake_flag", 10); // to avoid miss subscription
     vehicle_cmd_pub = node_handle_.advertise<autoware_msgs::VehicleCmd>("/vehicle_cmd", 1, true);
-    // timer_ = node_handle_.createTimer(ros::Duration(1.0 / loop_rate_), &LaneStopper::timer_callback, this);
+    timer_ = node_handle_.createTimer(ros::Duration(1.0 / loop_rate_), &LaneStopper::timer_callback, this);
 
     ros::spin();
 }

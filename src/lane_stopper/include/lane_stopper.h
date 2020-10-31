@@ -61,6 +61,7 @@ class LaneStopper {
     void syncedDetectionsCallback(const autoware_msgs::DetectedObjectArray::ConstPtr &input,
                              const geometry_msgs::PoseStamped::ConstPtr& mycarpose);
     void CtrlCmdCallback(const autoware_msgs::ControlCommandStampedConstPtr& input_msg);
+    void publish_vehicle_cmd();
     void timer_callback(const ros::TimerEvent& e);
     boost::optional<double> calcLaccWithSteeringAngle(const double& lv, const double& sa) const;
     boost::optional<double> calcLjerkWithSteeringAngle(const double& lv, const double& sa) const;
@@ -96,6 +97,7 @@ class LaneStopper {
     double initial_wait_time_;
     bool flag_activate_;
     bool is_in_intersection1_, is_in_intersection2_;
+    float intersection_force_accel_;
     time_t start_time_;
     // dataset
     StampedValue sa_prev_;

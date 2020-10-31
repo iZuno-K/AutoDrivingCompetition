@@ -203,6 +203,7 @@
         <arg name="loop_rate" default="30.0" /> <!--Hz = 1 / loop_rate-->
         
         <arg name="initial_wait_time" default="0.0" /> <!--seconds-->
+        <arg name="intersection_force_accel" default="0.4" />
     </include>
     
     <!-- BASIC LANE FOLLOW RULES AND WAYPOINTS ....................................................... -->
