@@ -2,7 +2,7 @@
 #define __APP_NAME__ "vehicle_odm_controller"
 
 VehicleOdmController::VehicleOdmController(){
-  init_varibles();
+  init_odom();
 }
 
 void VehicleOdmController::init_odom(){
@@ -12,7 +12,8 @@ void VehicleOdmController::init_odom(){
   vth = 0;
   ax = 0;
   pre_ax = 0;
-  imu_sub_ = nh.subscribe("odom", 10, &VehicleOdmController::odm_callback, this);
+  odm_sub = nh.subscribe("odom", 10, &VehicleOdmController::odm_callback, this);
+  vehicle_cmd_sub = nh.subscribe("vehicle_cmd", 10, &VehicleOdmController::vehicle_cmd_callback, this);
 }
 
 void VehicleOdmController::odm_callback(const nav_msgs::Odometry::Ptr& input)
@@ -29,6 +30,10 @@ void VehicleOdmController::odm_callback(const nav_msgs::Odometry::Ptr& input)
   previous_time = current_time;
   pre_vx = vx;
   pre_ax = ax;
+}
+
+void VehicleOdmController::vehicle_cmd_callback(const autoware_msgs::VehicleCmd::Ptr& input){
+
 }
 
 void VehicleOdmController::run() {

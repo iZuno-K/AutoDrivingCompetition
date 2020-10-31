@@ -22,7 +22,7 @@ class BrakingCtrl:
         # init const values
         # m/s, used for detect velocity limit
         self.vel_limit = 28 * (10 ** 3) / (3600)
-        self.rate = rospy.Rate(100)  # 100hz
+        self.rate = rospy.Rate(12)  # 12hz
         self.cmd_msg = VehicleCmd()
         self.cmd_msg.gear = 64  # Drive
 

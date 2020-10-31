@@ -28,13 +28,15 @@ public:
 
 private:
   // Not ROS specific func.
-    void init_varibles();
+    void init_odom();
+    void init_vcd();
 
   // Callback and the method of which
     void odm_callback(const nav_msgs::Odometry::Ptr& input);
+    void vehicle_cmd_callback(const autoware_msgs::VehicleCmd::Ptr& input);
 
     ros::NodeHandle nh;
-    ros::Subscriber imu_sub_;
+    ros::Subscriber odm_sub, vehicle_cmd_sub;
     ros::Publisher f_vel_pub;
 
     nav_msgs::Odometry odom;
