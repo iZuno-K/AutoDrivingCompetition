@@ -38,7 +38,7 @@ private:
 
     nav_msgs::Odometry odom;
     ros::Time previous_time;
-    double vx, vth;
+    double vx, pre_vx, vth, ax, pre_ax;
 
 };
 
