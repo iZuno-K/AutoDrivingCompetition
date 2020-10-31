@@ -18,6 +18,7 @@
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
+#include <boost/optional.hpp>
 
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/TwistStamped.h>
@@ -26,8 +27,8 @@
 
 class VehicleOdmController {
 public:
-    VehicleOdmController();
-    void run();
+  VehicleOdmController();
+  void run();
 
 private:
   // Def synclonizers
@@ -37,20 +38,23 @@ private:
   message_filters::Subscriber<autoware_msgs::VehicleCmd> *sub_vcmd_;
 
   // Not ROS specific func.
-    void init_odom();
-    void init_vcmd();
+  void init_odom();
+  void init_vcmd();
+  void init_sync();
 
   // Callback and the method of which
-    void odm_callback(const nav_msgs::Odometry::Ptr& input);
-    void vehicle_cmd_callback(const autoware_msgs::VehicleCmd::Ptr& input);
+  void odm_callback(const nav_msgs::Odometry::Ptr& input);
+  void vehicle_cmd_callback(const autoware_msgs::VehicleCmd::Ptr& input);
+  void sync_odm_cmd_callback(const nav_msgs::Odometry::ConstPtr &in_1, const autoware_msgs::VehicleCmd::ConstPtr &in_2);
 
-    ros::NodeHandle nh;
-    ros::Subscriber odm_sub, vehicle_cmd_sub;
-    ros::Publisher f_vel_pub;
+  ros::NodeHandle nh;
+  ros::Subscriber odm_sub, vehicle_cmd_sub;
+  ros::Publisher f_vel_pub;
 
-    ros::Time previous_time;
-    double vx_odm, vx_odm_prev, ax_odm, ax_odm_prev;
-    double vx_cmd, vx_cmd_prev, ax_cmd, ax_cmd_prev;
+  // ros::Time previous_time;
+  ros::Time time_odom_prev;
+  double vx_odm, vx_odm_prev, ax_odm, ax_odm_prev;
+  double vx_cmd, vx_cmd_prev, ax_cmd, ax_cmd_prev;
 };
 
 #endif //TEST_VEHICLE_ODM_CONTROLLER_H
