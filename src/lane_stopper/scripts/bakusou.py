@@ -62,7 +62,7 @@ class BrakingCtrl:
         rospy.loginfo("[BrakeCtrl] start")
         while 1:
             if self.set_bake:
-                rospy.loginfo("[BrakeCtrl] TO MA RE EEEEE")
+                rospy.loginfo("[BrakeCtrl] I KI SU GI II !!")
                 self.cmd_msg.ctrl_cmd.linear_acceleration = 1
                 self.pub_accel.publish(self.cmd_msg)
             else:
