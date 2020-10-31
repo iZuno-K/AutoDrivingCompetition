@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-# brake.pyとか言う名前しているけど、imuを読むのに使いまーす
 
 import message_filters
 import rospy
