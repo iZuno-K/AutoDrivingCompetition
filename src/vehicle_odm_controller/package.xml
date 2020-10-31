@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>vehicle_odm_controller</name>
+  <version>0.0.0</version>
+  <description>The vehicle_odm_controller package</description>
+  <maintainer email="kanai@todo.todo">kanai</maintainer>
+  <license>Apache 2</license>
+
+  <buildtool_depend>autoware_build_flags</buildtool_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>angles</depend>
+  <depend>geometry_msgs</depend>
+  <depend>autoware_config_msgs</depend>
+  <depend>autoware_msgs</depend>
+  <depend>autoware_health_checker</depend>
+  <depend>nav_msgs</depend>
+  <depend>message_filters</depend>
+  <depend>roscpp</depend>
+  <depend>rocpy</depend>
+  <depend>rostest</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>tf</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_eigen</depend>
+
+</package>
