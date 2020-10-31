@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   autoware_config_msgs
   autoware_config_msgs
   geometry_msgs
+  message_filters
   autoware_msgs
   nav_msgs
   tf
@@ -26,6 +27,7 @@ catkin_package(CATKIN_DEPENDS
         sensor_msgs
         autoware_msgs
         autoware_config_msgs
+        message_filters
         nav_msgs
         tf
         tf2

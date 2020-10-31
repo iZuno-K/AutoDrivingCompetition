@@ -15,6 +15,9 @@
 #include <autoware_msgs/ControlCommandStamped.h> 
 #include <autoware_msgs/VehicleCmd.h> // publish acclel command
 
+#include <message_filters/subscriber.h>
+#include <message_filters/synchronizer.h>
+#include <message_filters/sync_policies/approximate_time.h>
 
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/TwistStamped.h>
@@ -27,6 +30,12 @@ public:
     void run();
 
 private:
+  // Def synclonizers
+  typedef message_filters::sync_policies::ApproximateTime<nav_msgs::Odometry, autoware_msgs::VehicleCmd> SyncPolicyT;
+  message_filters::Synchronizer<SyncPolicyT> *synchronizer_;
+  message_filters::Subscriber<nav_msgs::Odometry> *sub_odom_;
+  message_filters::Subscriber<autoware_msgs::VehicleCmd> *sub_vcmd_;
+
   // Not ROS specific func.
     void init_odom();
     void init_vcd();
@@ -39,11 +48,9 @@ private:
     ros::Subscriber odm_sub, vehicle_cmd_sub;
     ros::Publisher f_vel_pub;
 
-    nav_msgs::Odometry odom;
     ros::Time previous_time;
-    double vx, pre_vx, vth, ax, pre_ax;
-    autoware_msgs::VehicleCmd vehicle_cmd_msg_;
-
+    double vx_odm, vx_odm_prev, ax_odm, ax_odm_prev;
+    double vx_cmd, vx_cmd_prev, ax_cmd, ax_cmd_prev;
 };
 
 #endif //TEST_VEHICLE_ODM_CONTROLLER_H
