@@ -9,6 +9,6 @@ int main(int argc, char **argv)
   ros::init(argc, argv, __APP_NAME__);
   VehicleOdmController vsp;
   // vsp.run();
-  vsp.record_csv("/home/kanai/log/acc05.csv");
+  vsp.record_csv("/home/kanai/log/acc20.csv");
   return 0;
 }

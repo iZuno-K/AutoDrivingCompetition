@@ -15,7 +15,7 @@ void VehicleOdmController::write_row(std::ofstream &ofs, FloatLike time, FloatLi
 void VehicleOdmController::record_csv(std::string filename){
   std::ofstream ofs_(filename.c_str());
   write_header(ofs_, "time", "a_real", "v_real", "a_vcmd");
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(12);
   while (ros::ok())
   {
     const double now_ = ros::Time::now().toSec();
@@ -85,7 +85,7 @@ void VehicleOdmController::timer_callback(const ros::TimerEvent& e) {
   vehicle_cmd_msg_.brake_cmd.brake = 0.0;
   vehicle_cmd_msg_.steer_cmd.steer = 0.0;
   vehicle_cmd_msg_.ctrl_cmd.linear_velocity = 0.0;
-  vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = 0.1;
+  vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = 2.;
   vehicle_cmd_msg_.ctrl_cmd.steering_angle = 0.0;
   vehicle_cmd_msg_.emergency = 0.0;
   vcmd_pub.publish(vehicle_cmd_msg_);
