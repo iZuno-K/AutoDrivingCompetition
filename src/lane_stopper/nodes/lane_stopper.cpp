@@ -128,7 +128,7 @@ void LaneStopper::CtrlCmdCallback(const autoware_msgs::ControlCommandStampedCons
   double accel, steer;
   vehicle_cmd_msg_.header.frame_id = input_msg->header.frame_id;
   vehicle_cmd_msg_.header.stamp = input_msg->header.stamp;
-  vehicle_cmd_msg_.header.seq++;
+  // vehicle_cmd_msg_.header.seq++;
   vehicle_cmd_msg_.ctrl_cmd = ccs.cmd;
   vehicle_cmd_msg_.gear = 64;
 
