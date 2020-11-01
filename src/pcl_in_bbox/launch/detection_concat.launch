@@ -1,0 +1,11 @@
+<launch>
+    <arg name="topic1" default="detection/lidar_detector/objects" /> 
+    <arg name="topic2" default="detection/lidar_detector/objects2" /> 
+    <arg name="output_topic" default="detection/concat" /> 
+
+    <node name="detection_concat" pkg="pcl_in_bbox" type="detection_concat" output="screen">
+        <param name="topic1" value="$(arg topic1)" />
+        <param name="topic2" value="$(arg topic2)" />
+        <remap from="detection/concat" to="$(arg output_topic)"/>
+    </node>
+</launch>

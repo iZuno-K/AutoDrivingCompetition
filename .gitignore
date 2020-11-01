@@ -8,3 +8,5 @@ tmp.txt
 *.gv
 *.pdf
 *.onnx
+/create-tar-file.sh
+*.tar.gz

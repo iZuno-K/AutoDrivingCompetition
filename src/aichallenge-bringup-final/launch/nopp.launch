@@ -176,19 +176,19 @@
     <include file="$(find lane_stopper)/launch/lane_stopper.launch">
         <arg name="objects_topic" default="/detection/lidar_detector/objects" />
         <arg name="current_pose_topic" default="/current_pose" />
-        <arg name="stop_distance" default="38.0" />  <!-- when stop at the intersection -->
-        <arg name="accel_divide_gain" default="4.0" />
+        <arg name="stop_distance" default="35.0" />  <!-- when stop at the intersection -->
+        <arg name="accel_divide_gain" default="1.01" />
         <arg name="accel_limit" default="1.0" />
         <arg name="deccel_limit" default="-1.0" />
         <arg name="lowpass_gain_accl" default="0.0" />
-        <arg name="lowpass_gain_steer" default="0.1" />
+        <arg name="lowpass_gain_steer" default="0.0" />
 
         <arg name="lateral_accel_limit" default="20.0" />
         <arg name="lateral_jerk_limit" default="5.0" />
-        <arg name="loop_rate" default="12.0" /> <!--Hz = 1 / loop_rate-->
+        <arg name="loop_rate" default="30.0" /> <!--Hz = 1 / loop_rate-->
         
-        <arg name="initial_wait_time" default="20.0" /> <!--seconds-->
-        <arg name="intersection_force_accel" default="1.0" />
+        <arg name="initial_wait_time" default="0.0" /> <!--seconds-->
+        <arg name="intersection_force_accel" default="0.3" />
     </include>
     
     <!-- BASIC LANE FOLLOW RULES AND WAYPOINTS ....................................................... -->
@@ -213,25 +213,17 @@
     </include>
 
     <!-- CONTROL (FOLLOW TRAJECTORY) .............................................................................. -->
-    <!-- <include file="$(find pure_pursuit)/launch/pure_pursuit.launch">
+    <include file="$(find pure_pursuit)/launch/pure_pursuit.launch">
         <arg name="publishes_for_steering_robot" default="true"/>
         <arg name="lookahead_ratio" default="2.0"/>
         <arg name="minimum_lookahead_distance" default="3.0"/>
     </include>
-    <node type="rosservice" name="pure_pursuit_log_killer" pkg="rosservice" args="call /pure_pursuit/set_logger_level ros.pure_pursuit ERROR" /> -->
-    <!-- fast pure persuit -->
-    <include file="$(find fast_pure_pursuit)/launch/fast_pure_pursuit.launch">
-        <arg name="publishes_for_steering_robot" default="true"/>
-        <arg name="lookahead_ratio" default="2.0"/>
-        <arg name="minimum_lookahead_distance" default="3.0"/>
-        <arg name="loop_rate" default="12.0" /> 
-    </include>
-    <node type="rosservice" name="fast_pure_pursuit_log_killer" pkg="rosservice" args="call /fast_pure_pursuit/set_logger_level ros.fast_pure_pursuit ERROR" />
 
     <!-- rviz: TODO remove these lines below before submitting the online evaluator -->
-    <!-- <include file="$(find aichallenge_bringup)/launch/_visualizer.launch"/>
-    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aichallenge_bringup)/data/aichallenge.rviz" /> -->
-    
+    <include file="$(find aichallenge_bringup)/launch/_visualizer.launch"/>
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aichallenge_bringup)/data/aichallenge.rviz" />
+    <node type="rosservice" name="pure_pursuit_log_killer" pkg="rosservice" args="call /pure_pursuit/set_logger_level ros.pure_pursuit ERROR" />
+    <!-- <node type="rosservice" name="pure_pursuit_log_killer" pkg="rosservice" args="call /fast_pure_pursuit/set_logger_level ros.fast_pure_pursuit ERROR" /> -->
     <node type="rosservice" name="costmap_generator_lanelet2_log_killer" pkg="rosservice" args="call /costmap_generator_lanelet2/set_logger_level ros.costmap_generator WARN" />
     <node type="rosservice" name="lane_select_log_killer" pkg="rosservice" args="call /lane_select/set_logger_level ros.lane_planner ERROR" />
 </launch>

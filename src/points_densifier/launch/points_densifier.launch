@@ -1,12 +1,13 @@
 <!-- -->
 <launch>
+  <arg name="node_name" default="points_densifier" />
   <arg name="input_topic" default="/points_in" />
   <arg name="output_topic" default="/points_densified" />
   <arg name="history_num" default="5" />
-  <arg name="output_frame_id" default="velodyne" />
   <arg name="fixed_frame_id" default="world" />
+  <arg name="output_frame_id" default="top_velodyne_link" />
 
-  <node pkg="points_densifier" type="points_densifier" name="points_densifier">
+  <node pkg="points_densifier" type="points_densifier" name="$(arg node_name)">
     <param name="output_frame_id" value="$(arg output_frame_id)" />
     <param name="fixed_frame_id" value="$(arg fixed_frame_id)" />
     <param name="history_num" value="$(arg history_num)" />

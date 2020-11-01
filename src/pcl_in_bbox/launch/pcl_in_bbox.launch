@@ -1,0 +1,12 @@
+<launch>
+    <arg name="points_src" default="/points_raw" /> <!-- PointCloud source topic-->
+    <arg name="image_detection_src" default="/detection/image_detector/objects" /> <!-- Raw Image source topic to be rectified-->
+    <arg name="camera_info_src" default="/camera_info" /> <!-- CameraInfo source topic-->
+
+    <node name="pcl_in_bbox_01" pkg="pcl_in_bbox" type="pcl_in_bbox" output="screen">
+        <param name="points_src" value="$(arg points_src)" />
+        <param name="image_detection_src" value="$(arg image_detection_src)" />
+        <param name="camera_info_src" value="$(arg camera_info_src)" />
+    </node>
+
+</launch>

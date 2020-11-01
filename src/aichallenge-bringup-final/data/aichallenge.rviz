@@ -5,15 +5,10 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Status1
-        - /System1/TF1
-        - /System1/TF1/Frames1
-        - /Perception1/Clustered Points1
-        - /PointCloud21
         - /PointCloud21/Autocompute Value Bounds1
         - /PointCloud22/Autocompute Value Bounds1
         - /PointCloud23/Autocompute Value Bounds1
-        - /MarkerArray2
-      Splitter Ratio: 0.642276406288147
+      Splitter Ratio: 0.6391852498054504
     Tree Height: 885
   - Class: rviz/Selection
     Name: Selection
@@ -37,14 +32,14 @@ Panels:
   - Class: autoware_rviz_debug/DecisionMakerPanel
     Name: DecisionMakerPanel
   - Class: integrated_viewer/ImageViewerPlugin
-    Image topic: /front_camera/image_raw
+    Image topic: -----
     Lane topic: -----
     Name: ImageViewerPlugin
     Point size: 3
     Point topic: -----
-    Rect topic: /detection/object_tracker/objects
+    Rect topic: /detection/image_detector/objects
   - Class: integrated_viewer/ImageViewerPlugin
-    Image topic: /front_camera/image_raw
+    Image topic: -----
     Lane topic: -----
     Name: ImageViewerPlugin
     Point size: 3
@@ -77,64 +72,6 @@ Visualization Manager:
       Value: false
     - Class: rviz/Group
       Displays:
-        - Class: rviz/TF
-          Enabled: true
-          Frame Timeout: 15
-          Frames:
-            All Enabled: false
-            base_link:
-              Value: false
-            front_camera_link:
-              Value: true
-            front_camera_optical_link:
-              Value: true
-            gps_link:
-              Value: true
-            imu_link:
-              Value: true
-            left_front_camera_link:
-              Value: true
-            left_front_camera_optical_link:
-              Value: true
-            left_rear_camera_link:
-              Value: true
-            left_rear_camera_optical_link:
-              Value: true
-            left_velodyne_link:
-              Value: true
-            map:
-              Value: true
-            rear_camera_link:
-              Value: true
-            rear_camera_optical_link:
-              Value: true
-            rear_velodyne_link:
-              Value: true
-            right_front_camera_link:
-              Value: true
-            right_front_camera_optical_link:
-              Value: true
-            right_rear_camera_link:
-              Value: true
-            right_rear_camera_optical_link:
-              Value: true
-            right_velodyne_link:
-              Value: true
-            top_velodyne_link:
-              Value: true
-            world:
-              Value: true
-          Marker Scale: 1
-          Name: TF
-          Show Arrows: true
-          Show Axes: true
-          Show Names: true
-          Tree:
-            world:
-              map:
-                {}
-          Update Interval: 0
-          Value: true
         - Alpha: 1
           Class: rviz/RobotModel
           Collision Enabled: false
@@ -416,7 +353,7 @@ Visualization Manager:
           Color: 255; 255; 255
           Color Transformer: FlatColor
           Decay Time: 0
-          Enabled: true
+          Enabled: false
           Invert Rainbow: false
           Max Color: 255; 255; 255
           Max Intensity: 4096
@@ -433,7 +370,7 @@ Visualization Manager:
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
-          Value: true
+          Value: false
         - Class: rviz/MarkerArray
           Enabled: true
           Marker Topic: /vector_map
@@ -470,7 +407,7 @@ Visualization Manager:
           Color: 255; 255; 255
           Color Transformer: Intensity
           Decay Time: 0
-          Enabled: true
+          Enabled: false
           Invert Rainbow: false
           Max Color: 255; 255; 255
           Max Intensity: 0
@@ -487,7 +424,7 @@ Visualization Manager:
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
-          Value: true
+          Value: false
         - Alpha: 0.5
           Autocompute Intensity Bounds: true
           Autocompute Value Bounds:
@@ -518,7 +455,7 @@ Visualization Manager:
           Use Fixed Frame: true
           Use rainbow: true
           Value: true
-      Enabled: true
+      Enabled: false
       Name: Sensing
     - Class: rviz/Group
       Displays:
@@ -567,7 +504,7 @@ Visualization Manager:
           Topic: /ndt_pose
           Unreliable: false
           Value: false
-      Enabled: true
+      Enabled: false
       Name: Localization
     - Class: rviz/Group
       Displays:
@@ -612,21 +549,35 @@ Visualization Manager:
           Use rainbow: true
           Value: true
         - Class: rviz/MarkerArray
-          Enabled: true
+          Enabled: false
           Marker Topic: /detection/object_tracker/objects_markers
           Name: Tracked Objects
           Namespaces:
             {}
           Queue Size: 100
-          Value: true
+          Value: false
+        - Class: rviz/TF
+          Enabled: false
+          Frame Timeout: 15
+          Frames:
+            All Enabled: false
+          Marker Scale: 1
+          Name: TF
+          Show Arrows: true
+          Show Axes: true
+          Show Names: true
+          Tree:
+            {}
+          Update Interval: 0
+          Value: false
         - Class: rviz/MarkerArray
-          Enabled: true
+          Enabled: false
           Marker Topic: /prediction/motion_predictor/path_markers
           Name: Predicted Path
           Namespaces:
             {}
           Queue Size: 100
-          Value: true
+          Value: false
       Enabled: true
       Name: Perception
     - Class: rviz/Group
@@ -750,21 +701,21 @@ Visualization Manager:
           Queue Size: 100
           Value: true
         - Class: rviz/Marker
-          Enabled: true
+          Enabled: false
           Marker Topic: /mpc_follower/debug/predicted_traj
           Name: MPC Predicted Trajectory
           Namespaces:
             {}
           Queue Size: 100
-          Value: true
+          Value: false
         - Class: rviz/Marker
-          Enabled: true
+          Enabled: false
           Marker Topic: /mpc_follower/debug/filtered_traj
           Name: MPC Reference Trajectory
           Namespaces:
             {}
           Queue Size: 100
-          Value: true
+          Value: false
       Enabled: true
       Name: Control
     - Alpha: 1
@@ -772,36 +723,6 @@ Visualization Manager:
       Autocompute Value Bounds:
         Max Value: 8.073081016540527
         Min Value: -5.836994171142578
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/PointCloud2
-      Color: 255; 255; 255
-      Color Transformer: AxisColor
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Max Intensity: 255
-      Min Color: 0; 0; 0
-      Min Intensity: 255
-      Name: PointCloud2
-      Position Transformer: XYZ
-      Queue Size: 10
-      Selectable: true
-      Size (Pixels): 3
-      Size (m): 0.20000000298023224
-      Style: Points
-      Topic: /points_no_ground
-      Unreliable: false
-      Use Fixed Frame: true
-      Use rainbow: true
-      Value: true
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 9.532114028930664
-        Min Value: -2.2694497108459473
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -822,11 +743,41 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.20000000298023224
       Style: Points
-      Topic: /left_velodyne/points_raw
+      Topic: /points_no_ground
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
       Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: -5.3536200523376465
+        Min Value: -7.084211349487305
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: AxisColor
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 255
+      Min Color: 0; 0; 0
+      Min Intensity: 255
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.20000000298023224
+      Style: Points
+      Topic: /points_fused_densified
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -868,6 +819,7 @@ Visualization Manager:
       Unreliable: false
       Value: false
       Visibility:
+        "": true
         Control:
           "": true
           Value: true
@@ -876,11 +828,16 @@ Visualization Manager:
           "": true
           Value: true
         Map:
-          "": true
+          ADAS Map: true
+          Lanelet2 Map: true
+          Points Map: true
           Value: true
-        MarkerArray: true
         Perception:
-          "": true
+          Clustered Points: true
+          Occupancy Grid Map: true
+          Predicted Path: true
+          TF: true
+          Tracked Objects: true
           Value: true
         Planning:
           "":
@@ -889,7 +846,8 @@ Visualization Manager:
           Value: true
         PointCloud2: true
         Sensing:
-          "": true
+          Points No Ground: true
+          Points Raw: true
           Value: true
         System:
           Health Checker:
@@ -904,22 +862,13 @@ Visualization Manager:
             NDT Time [ms]: true
             Value: true
             Velocity (km/h): true
-          TF: true
           Value: true
           Vehicle Model: true
         Value: true
       Zoom Factor: 1
     - Class: rviz/MarkerArray
-      Enabled: false
-      Marker Topic: /detection/lidar_detector/objects_markers
-      Name: MarkerArray
-      Namespaces:
-        {}
-      Queue Size: 100
-      Value: false
-    - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /prediction/motion_predictor/objects_markers
+      Marker Topic: /detection/lidar_detector/objects_markers
       Name: MarkerArray
       Namespaces:
         {}
@@ -985,7 +934,7 @@ Window Geometry:
   Hide Right Dock: true
   ImageViewerPlugin:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd000000040000000000000409000003cbfc020000001cfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005700fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afc00000038000003cb000000d80100001bfa000000000100000004fb000000220049006d0061006700650056006900650077006500720050006c007500670069006e0100000000ffffffff000002f500fffffffb0000000a0049006d0061006700650000000000ffffffff0000000000000000fb0000000c00430061006d0065007200610000000000ffffffff0000006500fffffffb000000100044006900730070006c0061007900730100000000000001360000015300fffffffb0000000a0049006d006100670065010000028e000000d20000000000000000fb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb000000120049006d006100670065005f0072006100770000000000ffffffff0000000000000000fb0000000c00430061006d006500720061000000024e000001710000000000000000fb000000120049006d00610067006500200052006100770100000421000000160000000000000000fb0000000a0049006d00610067006501000002f4000000cb0000000000000000fb0000000a0049006d006100670065010000056c0000026c0000000000000000fb00000024004400650063006900730069006f006e004d0061006b0065007200500061006e0065006c00000002110000018f0000017a00fffffffb0000000c00430061006d00650072006100000003ec000000160000000000000000fc0000031e000000160000000000fffffffa000000000100000002fb0000000c00430061006d0065007200610000000000ffffffff0000000000000000fb0000000c00430061006d00650072006100000000000000016a0000000000000000fb0000000c00430061006d00650072006100000002dd000000160000000000000000fb0000000c00430061006d00650072006100000001050000010a0000000000000000fb0000000c00430061006d0065007200610000000158000001690000000000000000fb0000000c00430061006d006500720061000000020a000001f80000000000000000fb0000000c00430061006d0065007200610100000236000001cc0000000000000000fb0000000c00430061006d00650072006100000003ec000000160000000000000000fb0000000c00430061006d0065007200610100000334000000ce0000000000000000fb0000000a0049006d0061006700650000000334000000ce0000000000000000fb0000000c00430061006d00650072006101000003ec000000160000000000000000fb0000000c00430061006d0065007200610100000243000001bf0000000000000000fb000000220049006d0061006700650056006900650077006500720050006c007500670069006e00000001680000029b0000007e00ffffff0000000100000125000003cbfc0200000003fb0000000a005600690065007700730000000038000003cb0000009c00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000001200530065006c0065006300740069006f006e010000025a000000b20000000000000000000000020000073f000000a8fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000009bf0000005cfc0100000002fb0000000800540069006d00650200000041000003be000009bf0000005cfb0000000800540069006d00650100000000000004500000000000000000000005b1000003cb00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd000000040000000000000409000003cbfc020000001cfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005700fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afc00000038000003cb000000d80100001bfa000000030100000004fb000000220049006d0061006700650056006900650077006500720050006c007500670069006e0100000000ffffffff000002c900fffffffb0000000a0049006d0061006700650000000000ffffffff0000000000000000fb0000000c00430061006d0065007200610000000000ffffffff0000006500fffffffb000000100044006900730070006c0061007900730100000000000001360000015300fffffffb0000000a0049006d006100670065010000028e000000d20000000000000000fb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb000000120049006d006100670065005f0072006100770000000000ffffffff0000000000000000fb0000000c00430061006d006500720061000000024e000001710000000000000000fb000000120049006d00610067006500200052006100770100000421000000160000000000000000fb0000000a0049006d00610067006501000002f4000000cb0000000000000000fb0000000a0049006d006100670065010000056c0000026c0000000000000000fb00000024004400650063006900730069006f006e004d0061006b0065007200500061006e0065006c00000002110000018f0000017a00fffffffb0000000c00430061006d00650072006100000003ec000000160000000000000000fc0000031e000000160000000000fffffffa000000000100000002fb0000000c00430061006d0065007200610000000000ffffffff0000000000000000fb0000000c00430061006d00650072006100000000000000016a0000000000000000fb0000000c00430061006d00650072006100000002dd000000160000000000000000fb0000000c00430061006d00650072006100000001050000010a0000000000000000fb0000000c00430061006d0065007200610000000158000001690000000000000000fb0000000c00430061006d006500720061000000020a000001f80000000000000000fb0000000c00430061006d0065007200610100000236000001cc0000000000000000fb0000000c00430061006d00650072006100000003ec000000160000000000000000fb0000000c00430061006d0065007200610100000334000000ce0000000000000000fb0000000a0049006d0061006700650000000334000000ce0000000000000000fb0000000c00430061006d00650072006101000003ec000000160000000000000000fb0000000c00430061006d0065007200610100000243000001bf0000000000000000fb000000220049006d0061006700650056006900650077006500720050006c007500670069006e00000001680000029b0000007f00ffffff0000000100000125000003cbfc0200000003fb0000000a005600690065007700730000000038000003cb0000009c00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000001200530065006c0065006300740069006f006e010000025a000000b20000000000000000000000020000073f000000a8fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000009bf0000005cfc0100000002fb0000000800540069006d00650200000041000003be000009bf0000005cfb0000000800540069006d00650100000000000004500000000000000000000005b1000003cb00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -995,5 +944,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 2495
-  X: 9
-  Y: 27
+  X: 6
+  Y: -39
