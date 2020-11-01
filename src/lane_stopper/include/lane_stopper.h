@@ -4,6 +4,7 @@
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
+#include <nav_msgs/Odometry.h>
 #include <autoware_msgs/DetectedObject.h>
 #include <autoware_msgs/DetectedObjectArray.h>
 #include "std_msgs/Bool.h"
@@ -43,7 +44,7 @@ class LaneStopper {
     message_filters::Subscriber<autoware_msgs::DetectedObjectArray> *objectArraySubscriber_;
     message_filters::Subscriber<geometry_msgs::PoseStamped> *poseSubscriber_;
     message_filters::Synchronizer<SyncPolicyT> *synchronizer_;
-    ros::Subscriber vehicle_cmd_sub_;
+    ros::Subscriber ctrl_cmd_sub_, velocity_sub_, pose_sub_;
     ros::Timer timer_;
 
     ros::Publisher bool_publisher;
@@ -52,6 +53,7 @@ class LaneStopper {
     tf::TransformListener tf_listener_;
     
     bool objectInIncomingLane(const autoware_msgs::DetectedObject &object);
+    bool poseInIncomingLane(const geometry_msgs::PoseStamped& msg);
     bool objectIncomingIntersection2(const autoware_msgs::DetectedObject &object);
     bool objectIncomingIntersection1(const autoware_msgs::DetectedObject &object);
     bool inIntersection1(const geometry_msgs::PoseStamped& msg);
@@ -61,7 +63,10 @@ class LaneStopper {
     void syncedDetectionsCallback(const autoware_msgs::DetectedObjectArray::ConstPtr &input,
                              const geometry_msgs::PoseStamped::ConstPtr& mycarpose);
     void CtrlCmdCallback(const autoware_msgs::ControlCommandStampedConstPtr& input_msg);
+    void modify_vehicle_cmd();
     void publish_vehicle_cmd();
+    void callbackFromOdom(const nav_msgs::Odometry::ConstPtr& msg);
+    void callbackFromPose(const geometry_msgs::PoseStamped::ConstPtr& mycarpose);
     void timer_callback(const ros::TimerEvent& e);
     boost::optional<double> calcLaccWithSteeringAngle(const double& lv, const double& sa) const;
     boost::optional<double> calcLjerkWithSteeringAngle(const double& lv, const double& sa) const;
@@ -96,9 +101,11 @@ class LaneStopper {
     double loop_rate_, lateral_accel_limit_, lateral_jerk_limit_, wheel_base_;
     double initial_wait_time_;
     bool flag_activate_;
-    bool is_in_intersection1_, is_in_intersection2_;
+    bool is_in_intersection1_, is_in_intersection2_, is_me_in_incomming_lane_;
     float intersection_force_accel_;
     time_t start_time_;
+    double current_linear_velocity_;
+    bool is_velocity_set_;
     // dataset
     StampedValue sa_prev_;
 
