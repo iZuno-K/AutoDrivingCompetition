@@ -209,7 +209,7 @@
     </include>
     <!-- <include file="$(find waypoint_planner)/launch/velocity_set_option.launch"/> -->
     <include file="$(find waypoint_planner)/launch/velocity_set_lanelet2.launch">
-        <arg name="stop_distance_obstacle" default="15.0" />
+        <arg name="stop_distance_obstacle" default="10.0" />
     </include>
 
     <!-- CONTROL (FOLLOW TRAJECTORY) .............................................................................. -->
