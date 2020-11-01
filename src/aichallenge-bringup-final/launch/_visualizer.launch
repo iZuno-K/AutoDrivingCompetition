@@ -51,9 +51,9 @@
   </group> -->
 
   <!-- imm_ukf_pda_track_lanelet2 -->
-  <!-- <arg name="namespace2" default="/detection/fusion_tools"/>
+  <arg name="namespace2" default="/detection/fusion_tools"/>
   <node pkg="detected_objects_visualizer" type="visualize_detected_objects" name="ukf_track_visualization_01"
-        output="screen" ns="$(arg namespace2)"/> -->
+        output="screen" ns="$(arg namespace2)"/>
         
 
   <!-- _naive_motion_predict -->

@@ -6,7 +6,7 @@
         <arg name="points_topic" default="/top_velodyne/points_raw" />
         <arg name="output_log" default="false" />
         <arg name="measurement_range" default="80" />
-        <arg name="min_measurement_range" default="5" />
+        <arg name="min_measurement_range" default="10" />
         <arg name="voxel_leaf_size" default="0.1"/>
     </include>
 
@@ -28,7 +28,7 @@
 
     <!-- concat top left right velodyns -->
     <include file="$(find aichallenge_bringup)/launch/_points_concat_filter.launch">
-        <arg name="input_topics" default="[/filtered_points, /left_velodyne/points_raw, /right_velodyne/points_raw]" />
+        <arg name="input_topics" default="[/top_velodyne/points_raw, /left_velodyne/points_raw, /right_velodyne/points_raw]" />
         <arg name="output_topic" default="/points_concat_raw" />
         <arg name="output_frame_id" default="top_velodyne_link" />
     </include>
@@ -104,40 +104,26 @@
     </include>
 
 
-    <!-- fusion -->
-    <include file="$(find aichallenge_bringup)/launch/_range_vision_fusion.launch">
-        <arg name="detected_objects_range" default="/detection/lidar_detector/concat"/>
-        <arg name="detected_objects_vision" default="/detection/image_detector/objects"/>
-        <arg name="camera_info_src" default="/front_camera/camera_info"/>
-        <arg name="min_car_dimensions" default="[3,2,2]"/>
-        <arg name="min_person_dimensions" default="[1,2,1]"/>
-        <arg name="min_truck_dimensions" default="[4,2,2]"/>
-        <arg name="sync_topics" default="false"/>
-        <arg name="overlap_threshold" default="0.3"/>
-        <arg name="use_vector_map" default="true"/>
-        <arg name="namespace" default="/detection/fusion_tools"/>
-    </include>
-
     <!-- Object tracker -->
     <include file="$(find aichallenge_bringup)/launch/_imm_ukf_pda_track_lanelet2.launch">
         <arg name="namespace" default="/detection/object_tracker"/>
-        <arg name="tracker_input_topic" default="/detection/fusion_tools/objects"/>
-        <!-- <arg name="tracker_input_topic" default="/detection/lidar_detector/objects"/> -->
+        <!-- <arg name="tracker_input_topic" default="/detection/fusion_tools/objects"/> -->
+        <arg name="tracker_input_topic" default="/detection/lidar_detector/objects"/>
         <arg name="tracker_output_topic" default="/detection/object_tracker/objects" />
 
         <arg name="tracking_frame" default="/world" />
         <arg name="gating_threshold" default="9.22" />
         <arg name="gate_probability" default="0.99" />
         <arg name="detection_probability" default="0.9" />
-        <arg name="life_time_threshold" default="8" />
+        <arg name="life_time_threshold" default="2" />
         <!-- <arg name="static_velocity_threshold" default="0.5" />  -->
-        <arg name="static_velocity_threshold" default="0.5" /> 
+        <arg name="static_velocity_threshold" default="0.2" /> 
         <arg name="static_num_history_threshold" default="3" />
         <arg name="prevent_explosion_threshold" default="1000" />
         <arg name="merge_distance_threshold" default="0.5"/>
         <arg name="use_sukf" default="false" />
         <!-- Vectormap -->
-        <arg name="use_map_info" default="true"/>
+        <arg name="use_map_info" default="false"/>
         <arg name="lane_direction_chi_threshold" default="2.71" />
         <arg name="nearest_lane_distance_threshold" default="1.0" />
         <arg name="map_frame" default="/map" />

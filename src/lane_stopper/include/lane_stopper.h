@@ -76,20 +76,19 @@ class LaneStopper {
     autoware_msgs::ControlCommandStamped lateralLimitCtrl(const autoware_msgs::ControlCommandStamped& msg);
 
     void reset_vehicle_cmd_msg();
-    
     const double a[6] = {-0.23597189174169617,
                         -0.26430773408498043,
                         -0.24750019525741684,
                         4.453371279902778,
                         3.7920438197948,
-                        3.999999998458709,
+                        -0.3739331552065404,
                         };
     const double b[6] = {-361.04047744482205,
                         -355.9439251504078,
                         -347.22055328879355,
                         -112.07512446590951,
                         -212.38461245157148,
-                        101.0462950010089
+                        -360.16951273140984
                         };
 
     double stop_distance_;
