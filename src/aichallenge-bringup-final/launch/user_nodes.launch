@@ -22,7 +22,7 @@
     <!-- vision -->
     <include file="$(find aichallenge_bringup)/launch/_vision_yolo3_detect.launch">
         <arg name="gpu_device_id" default="0"/>  
-        <arg name="score_threshold" default="0.4"/>
+        <arg name="score_threshold" default="0.3"/>
         <arg name="nms_threshold" default="0.450"/>
     </include>
 
@@ -56,7 +56,7 @@
     <include file="$(find points_densifier)/launch/points_densifier.launch">
         <arg name="input_topic" default="/points_no_ground" />
         <arg name="output_topic" default="/points_no_ground_densified" />
-        <arg name="history_num" default="3" />
+        <arg name="history_num" default="4" />
     </include>
 
     <!-- pub:points_fused -->
@@ -104,11 +104,25 @@
     </include>
 
 
+    <!-- fusion -->
+    <include file="$(find aichallenge_bringup)/launch/_range_vision_fusion.launch">
+        <arg name="detected_objects_range" default="/detection/lidar_detector/concat"/>
+        <arg name="detected_objects_vision" default="/detection/image_detector/objects"/>
+        <arg name="camera_info_src" default="/front_camera/camera_info"/>
+        <arg name="min_car_dimensions" default="[3,2,2]"/>
+        <arg name="min_person_dimensions" default="[1,2,1]"/>
+        <arg name="min_truck_dimensions" default="[4,2,2]"/>
+        <arg name="sync_topics" default="false"/>
+        <arg name="overlap_threshold" default="0.3"/>
+        <arg name="use_vector_map" default="true"/>
+        <arg name="namespace" default="/detection/fusion_tools"/>
+    </include>
+
     <!-- Object tracker -->
     <include file="$(find aichallenge_bringup)/launch/_imm_ukf_pda_track_lanelet2.launch">
         <arg name="namespace" default="/detection/object_tracker"/>
-        <!-- <arg name="tracker_input_topic" default="/detection/fusion_tools/objects"/> -->
-        <arg name="tracker_input_topic" default="/detection/lidar_detector/objects"/>
+        <arg name="tracker_input_topic" default="/detection/fusion_tools/objects"/>
+        <!-- <arg name="tracker_input_topic" default="/detection/lidar_detector/objects"/> -->
         <arg name="tracker_output_topic" default="/detection/object_tracker/objects" />
 
         <arg name="tracking_frame" default="/world" />
@@ -116,7 +130,8 @@
         <arg name="gate_probability" default="0.99" />
         <arg name="detection_probability" default="0.9" />
         <arg name="life_time_threshold" default="8" />
-        <arg name="static_velocity_threshold" default="0.5" />
+        <!-- <arg name="static_velocity_threshold" default="0.5" />  -->
+        <arg name="static_velocity_threshold" default="0.5" /> 
         <arg name="static_num_history_threshold" default="3" />
         <arg name="prevent_explosion_threshold" default="1000" />
         <arg name="merge_distance_threshold" default="0.5"/>
@@ -153,7 +168,7 @@
         <arg name="use_objects_convex_hull" default="false" />
         <arg name="maximum_lidar_height_thres" default="0.3" />
         <arg name="minimum_lidar_height_thres" default="-2.2" />
-        <arg name="expand_polygon_size" default="1.0" />
+        <arg name="expand_polygon_size" default="1.1" />
         <arg name="grid_resolution" default="0.4" />
         <arg name="grid_length_x" default="50" />
         <arg name="grid_length_y" default="20" />
