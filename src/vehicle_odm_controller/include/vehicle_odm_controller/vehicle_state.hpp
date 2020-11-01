@@ -29,7 +29,7 @@
 
 class VehicleOdmController {
 public:
-  VehicleOdmController();
+  VehicleOdmController(float accel);
   void run();
   void record_csv(std::string filename);
 
@@ -67,6 +67,7 @@ private:
   double loop_rate_;
   double vx_odm, vx_odm_prev, ax_odm, ax_odm_prev;
   double vx_cmd, vx_cmd_prev, ax_cmd, ax_cmd_prev;
+  double accel_;
 };
 
 

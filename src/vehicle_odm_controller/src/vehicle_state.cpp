@@ -27,7 +27,8 @@ void VehicleOdmController::record_csv(std::string filename){
   }
 }
 
-VehicleOdmController::VehicleOdmController(){
+VehicleOdmController::VehicleOdmController(float accel){
+  accel_ = accel;
   init_odom();
   // init_vcmd();
   loop_rate_ = 12.0;
@@ -85,7 +86,7 @@ void VehicleOdmController::timer_callback(const ros::TimerEvent& e) {
   vehicle_cmd_msg_.brake_cmd.brake = 0.0;
   vehicle_cmd_msg_.steer_cmd.steer = 0.0;
   vehicle_cmd_msg_.ctrl_cmd.linear_velocity = 0.0;
-  vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = 2.;
+  vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = accel_;
   vehicle_cmd_msg_.ctrl_cmd.steering_angle = 0.0;
   vehicle_cmd_msg_.emergency = 0.0;
   vcmd_pub.publish(vehicle_cmd_msg_);
