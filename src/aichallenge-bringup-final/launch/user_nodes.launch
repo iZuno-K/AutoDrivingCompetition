@@ -159,7 +159,7 @@
         <arg name="maximum_lidar_height_thres" default="0.3" />
         <arg name="minimum_lidar_height_thres" default="-2.2" />
         <arg name="expand_polygon_size" default="1.0" />
-        <arg name="grid_resolution" default="0.4" />
+        <arg name="grid_resolution" default="0.2" />
         <arg name="grid_length_x" default="50" />
         <arg name="grid_length_y" default="20" />
     </include>
@@ -185,7 +185,7 @@
 
         <arg name="lateral_accel_limit" default="20.0" />
         <arg name="lateral_jerk_limit" default="5.0" />
-        <arg name="loop_rate" default="12.0" /> <!--Hz = 1 / loop_rate-->
+        <arg name="loop_rate" default="10.0" /> <!--Hz = 1 / loop_rate-->
         
         <arg name="initial_wait_time" default="20.0" /> <!--seconds-->
         <arg name="intersection_force_accel" default="1.0" />
