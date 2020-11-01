@@ -174,8 +174,8 @@
         <arg name="current_pose_topic" default="/current_pose" />
         <arg name="stop_distance" default="38.0" />  <!-- when stop at the intersection -->
         <arg name="accel_divide_gain" default="10.0" />
-        <arg name="accel_limit" default="1.0" />
-        <arg name="deccel_limit" default="-1.0" />
+        <arg name="accel_limit" default="100.0" />
+        <arg name="deccel_limit" default="-100.0" />
         <arg name="lowpass_gain_accl" default="0.0" />
         <arg name="lowpass_gain_steer" default="0.1" />
 
