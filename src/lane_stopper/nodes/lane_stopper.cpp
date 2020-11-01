@@ -2,6 +2,13 @@
 #define __APP_NAME__ "lane_stopper"
 
 
+// 障害物検知しないとbrake flagが更新されないので、その対策 
+bool LaneStopper::poseDontCareLane(const geometry_msgs::PoseStamped& msg) {
+    geometry_msgs::Point p = msg.pose.position;
+    if (a[1] * p.x + b[1] < p.y) return true;
+    else return false;
+}
+
 bool LaneStopper::objectInIncomingLane(const autoware_msgs::DetectedObject &object) {
     double x, y;
     x = object.pose.position.x;
@@ -212,6 +219,8 @@ void LaneStopper::callbackFromPose(const geometry_msgs::PoseStamped::ConstPtr& m
   is_in_intersection1_ = inIntersection1(*mycarpose);
   is_in_intersection2_ = inIntersection2(*mycarpose);
   is_me_in_incomming_lane_ = poseInIncomingLane(*mycarpose);
+  dont_care_lane_ = poseDontCareLane(*mycarpose);
+  if (dont_care_lane_) brake_flag_ = true;  // 交差点抜けたら強制的にbrake_flag解除
 }
 
 void LaneStopper::reset_vehicle_cmd_msg() {
@@ -244,11 +253,11 @@ void LaneStopper::modify_vehicle_cmd() {
   vehicle_cmd_msg_.ctrl_cmd.steering_angle = filtered_steer_;
 
   // accel GAINの調整
-  accel = vehicle_cmd_msg_.ctrl_cmd.linear_acceleration;
   double thresh_vel = 5.0;  //m/s
   if (is_velocity_set_) {
-    if (current_linear_velocity_ > thresh_vel) {
-      accel /= accel_divide_gain_;
+    if (current_linear_velocity_ > thresh_vel && accel > 0) {
+      // vehicle_cmd_msg_.ctrl_cmd.linear_acceleration /= accel_divide_gain_;
+      vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = 0.0;
     }
   }
 
@@ -311,7 +320,7 @@ void LaneStopper::publish_vehicle_cmd() {
 
 LaneStopper::LaneStopper() : node_handle_(), private_node_handle_("~"), tf_listener_(), brake_flag_(false), 
 filtered_accel_(0.0), filtered_steer_(0.0), health_checker_(node_handle_, private_node_handle_), flag_activate_(false),
-is_in_intersection1_(false), is_in_intersection2_(false), is_me_in_incomming_lane_(false),
+is_in_intersection1_(false), is_in_intersection2_(false), is_me_in_incomming_lane_(false), dont_care_lane_(true),
 current_linear_velocity_(0.0), is_velocity_set_(false) {
     private_node_handle_.param("stop_distance", stop_distance_, 20.0);
     private_node_handle_.param("objects_topic", objects_topic_, std::string("/detection/lidar_detector/objects"));

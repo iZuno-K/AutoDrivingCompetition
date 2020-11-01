@@ -5,8 +5,8 @@
         <arg name="node_name" default="voxel_grid_filter" />
         <arg name="points_topic" default="/top_velodyne/points_raw" />
         <arg name="output_log" default="false" />
-        <arg name="measurement_range" default="90" />
-        <arg name="min_measurement_range" default="4" />
+        <arg name="measurement_range" default="80" />
+        <arg name="min_measurement_range" default="5" />
         <arg name="voxel_leaf_size" default="0.1"/>
     </include>
 
@@ -22,12 +22,12 @@
     <!-- vision -->
     <include file="$(find aichallenge_bringup)/launch/_vision_yolo3_detect.launch">
         <arg name="gpu_device_id" default="0"/>  
-        <arg name="score_threshold" default="0.5"/>
+        <arg name="score_threshold" default="0.4"/>
         <arg name="nms_threshold" default="0.450"/>
     </include>
 
     <!-- concat top left right velodyns -->
-    <include file="$(find points_preprocessor)/launch/points_concat_filter.launch">
+    <include file="$(find aichallenge_bringup)/launch/_points_concat_filter.launch">
         <arg name="input_topics" default="[/filtered_points, /left_velodyne/points_raw, /right_velodyne/points_raw]" />
         <arg name="output_topic" default="/points_concat_raw" />
         <arg name="output_frame_id" default="top_velodyne_link" />
@@ -38,7 +38,7 @@
         <arg name="node_name" default="voxel_grid_filter2" />
         <arg name="points_topic" default="/points_concat_raw" />
         <arg name="output_log" default="false" />
-        <arg name="measurement_range" default="90" />
+        <arg name="measurement_range" default="80" />
         <arg name="min_measurement_range" default="4" />
         <arg name="voxel_leaf_size" default="0.01"/>
         <arg name="pub_name" default="/points_concat"/>
@@ -74,9 +74,17 @@
         <arg name="history_num" default="3" />
     </include>
 
+    <!-- cocat ground and fused -->
+    <include file="$(find aichallenge_bringup)/launch/_points_concat_filter.launch">
+        <arg name="input_topics" default="[/points_no_ground, /points_fused_densified]" />
+        <arg name="output_topic" default="/points_no_gorund_fused" />
+        <arg name="output_frame_id" default="top_velodyne_link" />
+        <arg name="node_name" default="points_concat_filter2" />
+    </include>
+
     <!-- cluster pc in bbox from yolo -->
     <include file="$(find aichallenge_bringup)/launch/_lidar_euclidean_cluster_detect.launch" >
-        <arg name="points_node" default="/points_fused_densified" />
+        <arg name="points_node" default="/points_no_gorund_fused" />
         <arg name="use_gpu" default="gpu" />
         <arg name="remove_ground" default="false" />
         <arg name="downsample_cloud" default="false" />
@@ -95,25 +103,12 @@
         <arg name="use_multiple_thres" default="false"/>
     </include>
 
-    <include file="$(find aichallenge_bringup)/launch/_range_vision_fusion.launch">
-        <arg name="detected_objects_range" default="/detection/lidar_detector/objects"/>
-        <arg name="detected_objects_vision" default="/detection/image_detector/objects"/>
-        <arg name="camera_info_src" default="/front_camera/camera_info"/>
-        <arg name="min_car_dimensions" default="[3,2,2]"/>
-        <arg name="min_person_dimensions" default="[1,2,1]"/>
-        <arg name="min_truck_dimensions" default="[4,2,2]"/>
-        <arg name="sync_topics" default="true"/>
-        <arg name="overlap_threshold" default="0.3"/>
-        <arg name="use_vector_map" default="true"/>
-        <arg name="namespace" default="/detection/fusion_tools"/>
-    </include>
-
 
     <!-- Object tracker -->
     <include file="$(find aichallenge_bringup)/launch/_imm_ukf_pda_track_lanelet2.launch">
         <arg name="namespace" default="/detection/object_tracker"/>
-        <arg name="tracker_input_topic" default="/detection/fusion_tools/objects"/>
-        <!-- <arg name="tracker_input_topic" default="/detection/lidar_detector/objects"/> -->
+        <!-- <arg name="tracker_input_topic" default="/detection/fusion_tools/objects"/> -->
+        <arg name="tracker_input_topic" default="/detection/lidar_detector/objects"/>
         <arg name="tracker_output_topic" default="/detection/object_tracker/objects" />
 
         <arg name="tracking_frame" default="/world" />
@@ -136,7 +131,7 @@
     <!-- naieve motion predictor -->
     <include file="$(find aichallenge_bringup)/launch/_naive_motion_predict.launch">
         <arg name="interval_sec" default="0.2"/>
-        <arg name="num_prediction" default="15"/>
+        <arg name="num_prediction" default="30"/>
         <arg name="sensor_height" default="2.0"/>
         <arg name="filter_out_close_object_threshold" default="1.5"/>
         <!-- <arg name="input_topic" default="detection/lidar_detector/objects"/> -->
@@ -177,7 +172,7 @@
         <arg name="objects_topic" default="/detection/lidar_detector/objects" />
         <arg name="current_pose_topic" default="/current_pose" />
         <arg name="stop_distance" default="38.0" />  <!-- when stop at the intersection -->
-        <arg name="accel_divide_gain" default="4.0" />
+        <arg name="accel_divide_gain" default="10.0" />
         <arg name="accel_limit" default="1.0" />
         <arg name="deccel_limit" default="-1.0" />
         <arg name="lowpass_gain_accl" default="0.0" />
@@ -185,7 +180,7 @@
 
         <arg name="lateral_accel_limit" default="20.0" />
         <arg name="lateral_jerk_limit" default="5.0" />
-        <arg name="loop_rate" default="12.0" /> <!--Hz = 1 / loop_rate-->
+        <arg name="loop_rate" default="10.0" /> <!--Hz = 1 / loop_rate-->
         
         <arg name="initial_wait_time" default="20.0" /> <!--seconds-->
         <arg name="intersection_force_accel" default="1.0" />
@@ -205,7 +200,7 @@
         <arg name="replanning_mode" default="true" />
         <arg name="accel_limit" default="5.0" />
         <arg name="decel_limit" default="5.0" />
-        <arg name="velocity_max" default="20.0" />
+        <arg name="velocity_max" default="30.0" />
     </include>
     <!-- <include file="$(find waypoint_planner)/launch/velocity_set_option.launch"/> -->
     <include file="$(find waypoint_planner)/launch/velocity_set_lanelet2.launch">
@@ -224,13 +219,13 @@
         <arg name="publishes_for_steering_robot" default="true"/>
         <arg name="lookahead_ratio" default="2.0"/>
         <arg name="minimum_lookahead_distance" default="3.0"/>
-        <arg name="loop_rate" default="12.0" /> 
+        <arg name="loop_rate" default="10.0" /> 
     </include>
     <node type="rosservice" name="fast_pure_pursuit_log_killer" pkg="rosservice" args="call /fast_pure_pursuit/set_logger_level ros.fast_pure_pursuit ERROR" />
 
     <!-- rviz: TODO remove these lines below before submitting the online evaluator -->
-    <!-- <include file="$(find aichallenge_bringup)/launch/_visualizer.launch"/>
-    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aichallenge_bringup)/data/aichallenge.rviz" /> -->
+    <include file="$(find aichallenge_bringup)/launch/_visualizer.launch"/>
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aichallenge_bringup)/data/aichallenge.rviz" />
     
     <node type="rosservice" name="costmap_generator_lanelet2_log_killer" pkg="rosservice" args="call /costmap_generator_lanelet2/set_logger_level ros.costmap_generator WARN" />
     <node type="rosservice" name="lane_select_log_killer" pkg="rosservice" args="call /lane_select/set_logger_level ros.lane_planner ERROR" />
