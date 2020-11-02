@@ -40,7 +40,7 @@
         <arg name="output_log" default="false" />
         <arg name="measurement_range" default="80" />
         <arg name="min_measurement_range" default="4" />
-        <arg name="voxel_leaf_size" default="0.01"/>
+        <arg name="voxel_leaf_size" default="0.1"/>
         <arg name="pub_name" default="/points_concat"/>
     </include>
 
@@ -165,7 +165,7 @@
         <arg name="avoid_start_velocity" default="30.0" />
         <arg name="search_waypoints_delta" default="4" />
         <arg name="search_waypoints_size" default="100" />
-        <arg name="avoid_waypoints_velocity" default="20.0" />
+        <arg name="avoid_waypoints_velocity" default="30.0" />
         <arg name="obstacle_threshold" default="100" />
     </include>
     <!-- Emergent stop, Final Control -->
@@ -175,7 +175,7 @@
         <arg name="stop_distance" default="38.0" />  <!-- when stop at the intersection -->
         <arg name="accel_divide_gain" default="10.0" />
         <arg name="accel_limit" default="1.0" />
-        <arg name="deccel_limit" default="-1.0" />
+        <arg name="deccel_limit" default="-10000.0" />
         <arg name="lowpass_gain_accl" default="0.0" />
         <arg name="lowpass_gain_steer" default="0.1" />
 
@@ -199,8 +199,8 @@
         <arg name="multi_lane_csv" default="$(find aichallenge_bringup)/data/saved_waypoints.csv"/>
         <arg name="load_csv" default="true"/>
         <arg name="replanning_mode" default="true" />
-        <arg name="accel_limit" default="5.0" />
-        <arg name="decel_limit" default="5.0" />
+        <arg name="accel_limit" default="10.0" />
+        <arg name="decel_limit" default="100.0" />
         <arg name="velocity_max" default="30.0" />
     </include>
     <!-- <include file="$(find waypoint_planner)/launch/velocity_set_option.launch"/> -->

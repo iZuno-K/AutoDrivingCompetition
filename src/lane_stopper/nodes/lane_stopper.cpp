@@ -255,7 +255,7 @@ void LaneStopper::modify_vehicle_cmd() {
   vehicle_cmd_msg_.ctrl_cmd.steering_angle = filtered_steer_;
 
   // accel GAINの調整
-  double thresh_vel = 5.5;  //m/s
+  double thresh_vel = 7.5;  //m/s
   if (is_velocity_set_) {
     if (current_linear_velocity_ > thresh_vel && accel > 0) {
       // vehicle_cmd_msg_.ctrl_cmd.linear_acceleration /= accel_divide_gain_;
