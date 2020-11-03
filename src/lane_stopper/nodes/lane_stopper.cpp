@@ -244,6 +244,7 @@ void LaneStopper::reset_vehicle_cmd_msg() {
 void LaneStopper::modify_vehicle_cmd() {
   // limit accel
   double accel, steer;
+  ros::Duration duration= ros::Time::now() - previous_time;
   accel = vehicle_cmd_msg_.ctrl_cmd.linear_acceleration;
   steer = vehicle_cmd_msg_.ctrl_cmd.steering_angle;
   
@@ -254,12 +255,22 @@ void LaneStopper::modify_vehicle_cmd() {
   vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = filtered_accel_;
   vehicle_cmd_msg_.ctrl_cmd.steering_angle = filtered_steer_;
 
+  // ROS_INFO("[%s]: target velocity   %lf,   current velocity   %lf", __APP_NAME__, vehicle_cmd_msg_.ctrl_cmd.linear_velocity, current_linear_velocity_);
   // accel GAINの調整
-  double thresh_vel = 5.5;  //m/s
+  double thresh_vel = 1.0;  //m/s max 8.3?? 
   if (is_velocity_set_) {
-    if (current_linear_velocity_ > thresh_vel  && accel > 0) {
+    // If the velocity at the next call will exceed 30 m/s, 
+    // or the diff between target vel. and current vel. is less than 'thresh_vel', and
+    // accel > 0, 
+    // send a command to vehicle_cmd_msg_ 'set an acecel 0.'
+    
+    // if (current_linear_velocity_ * duration.toSec() + 0.5 * filtered_accel_ * duration.toSec() * duration.toSec() > vehicle_cmd_msg_.ctrl_cmd.linear_velocity &&
+    //     vehicle_cmd_msg_.ctrl_cmd.linear_velocity - current_linear_velocity_ < thresh_vel && 
+    //     accel > 0) {
+    if (current_linear_velocity_ + filtered_accel_ * duration.toSec() > vehicle_cmd_msg_.ctrl_cmd.linear_velocity - thresh_vel &&
+        accel > 0) {
       // vehicle_cmd_msg_.ctrl_cmd.linear_acceleration /= accel_divide_gain_;
-      vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = 0.0;
+      vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = 0.0125;
     }
   }
 
@@ -280,6 +291,9 @@ void LaneStopper::modify_vehicle_cmd() {
     }
   }
   // END 交差点時のcmd処理 ===================================================================
+
+  // update time.
+  previous_time = ros::Time::now();
 }
 
 
@@ -341,6 +355,7 @@ current_linear_velocity_(0.0), is_velocity_set_(false) {
     private_node_handle_.param("initial_wait_time", initial_wait_time_, 50.0);
     private_node_handle_.param("intersection_force_accel", intersection_force_accel_, 0.4f);
     start_time_ = time(NULL);
+    previous_time = ros::Time::now();
 
     LaneStopper::reset_vehicle_cmd_msg();
     health_checker_.ENABLE();

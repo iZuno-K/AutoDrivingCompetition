@@ -53,6 +53,13 @@
         <arg name="pub_name" default="/points_concat"/>
     </include>
 
+    <!-- concat top left right velodyns -->
+    <include file="$(find aichallenge_bringup)/launch/_points_concat_filter.launch">
+        <arg name="input_topics" default="[/top_velodyne/points_raw, /left_velodyne/points_raw, /right_velodyne/points_raw]" />
+        <arg name="output_topic" default="/points_concat_raw" />
+        <arg name="output_frame_id" default="top_velodyne_link" />
+    </include>
+
     <!-- ground filter -->
     <include file="$(find points_preprocessor)/launch/compare_map_filter.launch">
         <arg name="input_point_topic" default="/points_concat" />
@@ -92,6 +99,22 @@
         <arg name="node_name" default="points_concat_filter2" />
     </include>
 
+    <!-- Localize sub:/filtered_points -->
+    <include file="$(find aichallenge_bringup)/launch/_ndt_matching.launch">
+        <arg name="method_type" default="2"/>
+        <arg name="use_odom" default="false"/>
+        <arg name="imu_upside_down" default="false"/>
+        <arg name="imu_topic" default="/imu_raw"/>
+        <arg name="get_height" default="true"/>
+    </include>
+
+    <!-- vision -->
+    <include file="$(find aichallenge_bringup)/launch/_vision_yolo3_detect.launch">
+        <arg name="gpu_device_id" default="0"/>  
+        <arg name="score_threshold" default="0.3"/>
+        <arg name="nms_threshold" default="0.450"/>
+    </include>
+
     <!-- cluster pc in bbox from yolo -->
     <include file="$(find aichallenge_bringup)/launch/_lidar_euclidean_cluster_detect.launch" >
         <arg name="points_node" default="/points_no_gorund_fused" />
@@ -112,7 +135,6 @@
         <arg name="remove_points_upto" default="0.0" />
         <arg name="use_multiple_thres" default="false"/>
     </include>
-
     <!-- <include file="$(find pcl_in_bbox)/launch/detection_concat.launch">
         <arg name="output_topic" default="detection/concat" /> 
     </include> -->
@@ -182,7 +204,7 @@
         <arg name="maximum_lidar_height_thres" default="0.3" />
         <arg name="minimum_lidar_height_thres" default="-2.2" />
         <arg name="expand_polygon_size" default="1.1" />
-        <arg name="grid_resolution" default="0.4" />
+        <arg name="grid_resolution" default="0.2" />
         <arg name="grid_length_x" default="50" />
         <arg name="grid_length_y" default="20" />
     </include>
@@ -195,22 +217,23 @@
         <arg name="avoid_waypoints_velocity" default="30.0" />
         <arg name="obstacle_threshold" default="50" />
     </include>
+
     <!-- Emergent stop, Final Control -->
     <include file="$(find lane_stopper)/launch/lane_stopper.launch">
         <arg name="objects_topic" default="/detection/lidar_detector/objects" />
         <arg name="current_pose_topic" default="/current_pose" />
         <arg name="stop_distance" default="38.0" />  <!-- when stop at the intersection -->
         <arg name="accel_divide_gain" default="10.0" />
-        <arg name="accel_limit" default="1.0" />
-        <arg name="deccel_limit" default="-10000.0" />
-        <arg name="lowpass_gain_accl" default="0.0" />
-        <arg name="lowpass_gain_steer" default="0.1" />
+        <arg name="accel_limit" default="1.6" />  <!--TODO: over 1.0?-->
+        <arg name="deccel_limit" default="-100.0" />
+        <arg name="lowpass_gain_accl" default="0.0" /> <!-- do not change. -->>
+        <arg name="lowpass_gain_steer" default="0.1" /> <!-- for strict, 0 is better (x < 0.1) -->
 
         <arg name="lateral_accel_limit" default="20.0" />
         <arg name="lateral_jerk_limit" default="5.0" />
         <arg name="loop_rate" default="10.0" /> <!--Hz = 1 / loop_rate-->
         
-        <arg name="initial_wait_time" default="20.0" /> <!--seconds-->
+        <arg name="initial_wait_time" default="5.0" /> <!--seconds-->
         <arg name="intersection_force_accel" default="1.0" />
     </include>
     
@@ -226,7 +249,7 @@
         <arg name="multi_lane_csv" default="$(find aichallenge_bringup)/data/saved_waypoints.csv"/>
         <arg name="load_csv" default="true"/>
         <arg name="replanning_mode" default="true" />
-        <arg name="accel_limit" default="10.0" />
+        <arg name="accel_limit" default="20.0" />
         <arg name="decel_limit" default="100.0" />
         <arg name="velocity_max" default="30.0" />
     </include>

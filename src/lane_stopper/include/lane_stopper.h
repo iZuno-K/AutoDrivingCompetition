@@ -46,6 +46,7 @@ class LaneStopper {
     message_filters::Synchronizer<SyncPolicyT> *synchronizer_;
     ros::Subscriber ctrl_cmd_sub_, velocity_sub_, pose_sub_;
     ros::Timer timer_;
+    ros::Time previous_time;
 
     ros::Publisher bool_publisher;
     ros::Publisher vehicle_cmd_pub;
