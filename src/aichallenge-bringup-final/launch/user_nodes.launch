@@ -17,7 +17,7 @@
         <arg name="output_log" default="false" />
         <arg name="measurement_range" default="80" />
         <arg name="min_measurement_range" default="4" />
-        <arg name="voxel_leaf_size" default="0.01"/>
+        <arg name="voxel_leaf_size" default="0.1"/>
         <arg name="pub_name" default="/points_concat"/>
     </include>
 
@@ -116,7 +116,7 @@
         <arg name="detection_probability" default="0.9" />
         <arg name="life_time_threshold" default="2" />
         <!-- <arg name="static_velocity_threshold" default="0.5" />  -->
-        <arg name="static_velocity_threshold" default="0.2" /> 
+        <arg name="static_velocity_threshold" default="0.1" /> 
         <arg name="static_num_history_threshold" default="3" />
         <arg name="prevent_explosion_threshold" default="1000" />
         <arg name="merge_distance_threshold" default="0.5"/>
@@ -161,11 +161,11 @@
     <!-- Astar planning -->
     <include file="$(find waypoint_planner)/launch/astar_avoid.launch">
         <arg name="enable_avoidance" default="true" />
-        <arg name="avoid_start_velocity" default="11.0" />
+        <arg name="avoid_start_velocity" default="30.0" />
         <arg name="search_waypoints_delta" default="4" />
         <arg name="search_waypoints_size" default="100" />
-        <arg name="avoid_waypoints_velocity" default="20.0" />
-        <arg name="obstacle_threshold" default="50" />
+        <arg name="avoid_waypoints_velocity" default="30.0" />
+        <arg name="obstacle_threshold" default="100" />
     </include>
 
     <!-- Emergent stop, Final Control -->

@@ -267,7 +267,7 @@ void LaneStopper::modify_vehicle_cmd() {
     // if (current_linear_velocity_ * duration.toSec() + 0.5 * filtered_accel_ * duration.toSec() * duration.toSec() > vehicle_cmd_msg_.ctrl_cmd.linear_velocity &&
     //     vehicle_cmd_msg_.ctrl_cmd.linear_velocity - current_linear_velocity_ < thresh_vel && 
     //     accel > 0) {
-    if (current_linear_velocity_ + filtered_accel_ * duration.toSec() > vehicle_cmd_msg_.ctrl_cmd.linear_velocity - thresh_vel&&
+    if (current_linear_velocity_ + filtered_accel_ * duration.toSec() > vehicle_cmd_msg_.ctrl_cmd.linear_velocity - thresh_vel &&
         accel > 0) {
       // vehicle_cmd_msg_.ctrl_cmd.linear_acceleration /= accel_divide_gain_;
       vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = 0.0125;
