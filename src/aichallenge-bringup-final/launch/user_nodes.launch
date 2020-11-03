@@ -53,13 +53,6 @@
         <arg name="pub_name" default="/points_concat"/>
     </include>
 
-    <!-- concat top left right velodyns -->
-    <include file="$(find aichallenge_bringup)/launch/_points_concat_filter.launch">
-        <arg name="input_topics" default="[/top_velodyne/points_raw, /left_velodyne/points_raw, /right_velodyne/points_raw]" />
-        <arg name="output_topic" default="/points_concat_raw" />
-        <arg name="output_frame_id" default="top_velodyne_link" />
-    </include>
-
     <!-- ground filter -->
     <include file="$(find points_preprocessor)/launch/compare_map_filter.launch">
         <arg name="input_point_topic" default="/points_concat" />
@@ -97,22 +90,6 @@
         <arg name="output_topic" default="/points_no_gorund_fused" />
         <arg name="output_frame_id" default="top_velodyne_link" />
         <arg name="node_name" default="points_concat_filter2" />
-    </include>
-
-    <!-- Localize sub:/filtered_points -->
-    <include file="$(find aichallenge_bringup)/launch/_ndt_matching.launch">
-        <arg name="method_type" default="2"/>
-        <arg name="use_odom" default="false"/>
-        <arg name="imu_upside_down" default="false"/>
-        <arg name="imu_topic" default="/imu_raw"/>
-        <arg name="get_height" default="true"/>
-    </include>
-
-    <!-- vision -->
-    <include file="$(find aichallenge_bringup)/launch/_vision_yolo3_detect.launch">
-        <arg name="gpu_device_id" default="0"/>  
-        <arg name="score_threshold" default="0.3"/>
-        <arg name="nms_threshold" default="0.450"/>
     </include>
 
     <!-- cluster pc in bbox from yolo -->
