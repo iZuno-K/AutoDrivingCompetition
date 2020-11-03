@@ -10,14 +10,46 @@
         <arg name="voxel_leaf_size" default="0.1"/>
     </include>
 
+    <!-- Localize sub:/filtered_points -->
+    <include file="$(find aichallenge_bringup)/launch/_ndt_matching.launch">
+        <arg name="method_type" default="2"/>
+        <arg name="use_odom" default="false"/>
+        <arg name="imu_upside_down" default="false"/>
+        <arg name="imu_topic" default="/imu_raw"/>
+        <arg name="get_height" default="true"/>
+    </include>
+
+    <!-- vision -->
+    <include file="$(find aichallenge_bringup)/launch/_vision_yolo3_detect.launch">
+        <arg name="gpu_device_id" default="0"/>  
+        <arg name="score_threshold" default="0.3"/>
+        <arg name="nms_threshold" default="0.450"/>
+    </include>
+
+    <!-- point pillar -->
+    <!-- <include file="$(find aichallenge_bringup)/launch/_lidar_points_pillar.launch">
+        <arg name="input_topic" default="/top_velodyne/points_raw"/>
+        <arg name="output_topic" default="/detection/lidar_detector/objects2"/>
+        <arg name="baselink_support" default="true"/>
+        <arg name="score_threshold" default="0.3" />
+        <arg name="nms_overlap_threshold" default="0.5" />
+    </include> -->
+
+    <!-- concat top left right velodyns -->
+    <include file="$(find aichallenge_bringup)/launch/_points_concat_filter.launch">
+        <arg name="input_topics" default="[/top_velodyne/points_raw, /left_velodyne/points_raw, /right_velodyne/points_raw]" />
+        <arg name="output_topic" default="/points_concat_raw" />
+        <arg name="output_frame_id" default="top_velodyne_link" />
+    </include>
+
     <!-- down sample -->
     <include file="$(find mypoints_downsampler)/launch/points_downsample.launch">
         <arg name="node_name" default="voxel_grid_filter2" />
         <arg name="points_topic" default="/points_concat_raw" />
         <arg name="output_log" default="false" />
         <arg name="measurement_range" default="80" />
-        <arg name="min_measurement_range" default="4" />
-        <arg name="voxel_leaf_size" default="0.1"/>
+        <arg name="min_measurement_range" default="3.8" />
+        <arg name="voxel_leaf_size" default="0.01"/>
         <arg name="pub_name" default="/points_concat"/>
     </include>
 
@@ -41,6 +73,7 @@
         <arg name="input_topic" default="/points_no_ground" />
         <arg name="output_topic" default="/points_no_ground_densified" />
         <arg name="history_num" default="4" />
+        <arg name="remove_backward_points" default="true"/>
     </include>
 
     <!-- pub:points_fused -->
@@ -60,7 +93,7 @@
 
     <!-- cocat ground and fused -->
     <include file="$(find aichallenge_bringup)/launch/_points_concat_filter.launch">
-        <arg name="input_topics" default="[/points_no_ground, /points_fused_densified]" />
+        <arg name="input_topics" default="[/points_no_ground_densified, /points_fused_densified]" />
         <arg name="output_topic" default="/points_no_gorund_fused" />
         <arg name="output_frame_id" default="top_velodyne_link" />
         <arg name="node_name" default="points_concat_filter2" />
@@ -102,12 +135,29 @@
         <arg name="remove_points_upto" default="0.0" />
         <arg name="use_multiple_thres" default="false"/>
     </include>
+    <!-- <include file="$(find pcl_in_bbox)/launch/detection_concat.launch">
+        <arg name="output_topic" default="detection/concat" /> 
+    </include> -->
+
+    <include file="$(find aichallenge_bringup)/launch/_range_vision_fusion.launch">
+        <arg name="detected_objects_range" default="/detection/lidar_detector/objects"/>
+        <arg name="detected_objects_vision" default="/detection/image_detector/objects"/>
+        <arg name="camera_info_src" default="/front_camera/camera_info"/>
+        <arg name="min_car_dimensions" default="[3,2,2]"/>
+        <arg name="min_person_dimensions" default="[1,2,1]"/>
+        <arg name="min_truck_dimensions" default="[4,2,2]"/>
+        <arg name="sync_topics" default="true"/>
+        <arg name="overlap_threshold" default="0.3"/>
+        <arg name="use_vector_map" default="true"/>
+        <arg name="namespace" default="/detection/fusion_tools"/>
+    </include>
 
     <!-- Object tracker -->
     <include file="$(find aichallenge_bringup)/launch/_imm_ukf_pda_track_lanelet2.launch">
         <arg name="namespace" default="/detection/object_tracker"/>
-        <!-- <arg name="tracker_input_topic" default="/detection/fusion_tools/objects"/> -->
-        <arg name="tracker_input_topic" default="/detection/lidar_detector/objects"/>
+        <arg name="tracker_input_topic" default="/detection/fusion_tools/objects"/>
+        <!-- <arg name="tracker_input_topic" default="/detection/lidar_detector/objects"/> -->
+        <!-- <arg name="tracker_input_topic" default="/detection/concat"/> -->
         <arg name="tracker_output_topic" default="/detection/object_tracker/objects" />
 
         <arg name="tracking_frame" default="/world" />
@@ -133,7 +183,7 @@
         <arg name="interval_sec" default="0.2"/>
         <arg name="num_prediction" default="30"/>
         <arg name="sensor_height" default="2.0"/>
-        <arg name="filter_out_close_object_threshold" default="1.5"/>
+        <arg name="filter_out_close_object_threshold" default="0.0"/>
         <!-- <arg name="input_topic" default="detection/lidar_detector/objects"/> -->
         <arg name="input_topic" default="/detection/object_tracker/objects"/>
         <!-- TODO etectedObjectAray maybe fusion or lidar object detection is required -->
@@ -165,7 +215,7 @@
         <arg name="search_waypoints_delta" default="4" />
         <arg name="search_waypoints_size" default="100" />
         <arg name="avoid_waypoints_velocity" default="30.0" />
-        <arg name="obstacle_threshold" default="100" />
+        <arg name="obstacle_threshold" default="50" />
     </include>
 
     <!-- Emergent stop, Final Control -->
@@ -189,7 +239,7 @@
     
     <!-- BASIC LANE FOLLOW RULES AND WAYPOINTS ....................................................... -->
     <include file="$(find lane_planner)/launch/lane_rule_option.launch"/>
-    <include file="$(find lane_planner)/launch/lane_select.launch"/>
+    <include file="$(find lane_planner)/launch/lane_select.launch"/>waypoint_planner
     <node pkg="lane_planner" type="lane_stop" name="lane_stop"/>
     <include file="$(find autoware_connector)/launch/vel_pose_connect.launch">
         <arg name="topic_pose_stamped" default="/ndt_pose"/>
@@ -205,7 +255,7 @@
     </include>
     <!-- <include file="$(find waypoint_planner)/launch/velocity_set_option.launch"/> -->
     <include file="$(find waypoint_planner)/launch/velocity_set_lanelet2.launch">
-        <arg name="stop_distance_obstacle" default="15.0" />
+        <arg name="stop_distance_obstacle" default="10.0" />
     </include>
 
     <!-- CONTROL (FOLLOW TRAJECTORY) .............................................................................. -->
