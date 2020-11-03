@@ -255,7 +255,7 @@ void LaneStopper::modify_vehicle_cmd() {
   vehicle_cmd_msg_.ctrl_cmd.steering_angle = filtered_steer_;
 
   // accel GAINの調整
-  double thresh_vel = 7.5;  //m/s max 8.3?? 
+  double thresh_vel = 5.5;  //m/s max 8.3?? 
   if (is_velocity_set_) {
     // If the velocity at the next call will exceed 30 m/s, 
     // or the diff between target vel. and current vel. is less than 'thresh_vel', and
