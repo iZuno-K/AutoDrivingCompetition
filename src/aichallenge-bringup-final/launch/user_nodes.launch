@@ -174,8 +174,8 @@
         <arg name="current_pose_topic" default="/current_pose" />
         <arg name="stop_distance" default="38.0" />  <!-- when stop at the intersection -->
         <arg name="accel_divide_gain" default="10.0" />
-        <arg name="accel_limit" default="0.5" />  <!--TODO: over 1.0?-->
-        <arg name="deccel_limit" default="-1000.0" />
+        <arg name="accel_limit" default="1.6" />  <!--TODO: over 1.0?-->
+        <arg name="deccel_limit" default="-100.0" />
         <arg name="lowpass_gain_accl" default="0.0" /> <!-- do not change. -->>
         <arg name="lowpass_gain_steer" default="0.1" /> <!-- for strict, 0 is better (x < 0.1) -->
 
@@ -199,7 +199,7 @@
         <arg name="multi_lane_csv" default="$(find aichallenge_bringup)/data/saved_waypoints.csv"/>
         <arg name="load_csv" default="true"/>
         <arg name="replanning_mode" default="true" />
-        <arg name="accel_limit" default="5.0" />
+        <arg name="accel_limit" default="20.0" />
         <arg name="decel_limit" default="100.0" />
         <arg name="velocity_max" default="30.0" />
     </include>
