@@ -23,6 +23,7 @@ PointsDensifier::PointsDensifier() : node_handle_(), private_node_handle_("~"), 
     private_node_handle_.param("fixed_frame_id", fixed_frame_id_, string("world"));
     private_node_handle_.param("output_frame_id", output_frame_id_, string("top_velodyne_link"));
     private_node_handle_.param("history_num", history_num_, 5);
+    private_node_handle_.param("remove_backward_points", remove_backward_flag_, false);
     
     if (MAX_HISTORY_NUM < history_num_) {
         ROS_WARN("[%s] history_num_(%d) decreaased into MAX_HISTORY_NUM(%d)", __APP_NAME__, history_num_, MAX_HISTORY_NUM);
@@ -56,6 +57,36 @@ void PointsDensifier::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg) {
         return;
     }
 
+    // remove backward points
+    if (remove_backward_flag_) {
+        for (size_t i = 0; i < (size_t)min(history_num_, max_index_ + 1); ++i) {
+            PointCloudT::Ptr cloud_converted(new PointCloudT);
+            try {
+                tf_listener_.waitForTransform("base_link", cloud_history[i]->header.frame_id, ros::Time(0), ros::Duration(1.0));
+                pcl_ros::transformPointCloud("base_link", ros::Time(0), *cloud_history[i], cloud_history[i]->header.frame_id, *cloud_converted, tf_listener_);
+                // auto result = std::remove_if(cloud_converted->points.begin())
+                int count = 0;
+                for (int j = 0; j < (int)cloud_converted->points.size(); j++) {
+                // for (auto &pc : cloud_history) {
+                    if (cloud_converted->points[j].x < 0) {
+                        cloud_history[i]->points.erase(cloud_history[i]->points.begin() + j - count);  // 消した分indexずれるので調整
+                        count++;
+                    }
+
+                }
+                // ROS_INFO("[%s] remove points from (%d) to (%d)", __APP_NAME__, (int)cloud_converted->points.size(), (int)cloud_history[i]->points.size());
+                // extract.setInputCloud(cloud_history[i]);
+                // extract.setIndices(inliers);
+                // extract.setNegative(true);
+                // extract.filter(*cloud_history[i);
+            }
+            catch (tf::TransformException &ex) {
+                ROS_ERROR("[%s] %s", __APP_NAME__, ex.what());
+                return;
+            }
+        }
+    }
+
     // merge points
     for (size_t i = 0; i < (size_t)min(history_num_, max_index_ + 1); ++i) {
         *cloud_densified += *cloud_history[i];
@@ -74,10 +105,10 @@ void PointsDensifier::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg) {
     index_++;
     if (index_ >= history_num_) index_ = 0;
     if (max_index_ < history_num_) max_index_++;
+
     // publsh points
     cloud_densified->header = pcl_conversions::toPCL(msg->header);
     cloud_densified->header.frame_id = output_frame_id_;
-
     cloud_publisher_.publish(cloud_densified);
 }
 
