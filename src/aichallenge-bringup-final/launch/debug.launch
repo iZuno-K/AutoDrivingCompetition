@@ -12,7 +12,7 @@
 
     <!-- ToDo : modify launch files and add ROS nodes developed by you -->
     <include file="$(find lidar_localizer)/launch/ndt_matching.launch">
-        <arg name="method_type" default="3"/>
+        <arg name="method_type" default="2"/>
         <arg name="use_odom" default="false"/>
         <arg name="imu_upside_down" default="false"/>
         <arg name="imu_topic" default="/imu_raw"/>
@@ -27,9 +27,15 @@
         <arg name="topic_twist_stamped" default="/estimate_twist"/>
     </include>
 
+    <include file="$(find aichallenge_bringup)/launch/_points_concat_filter.launch">
+        <arg name="input_topics" default="[/top_velodyne/points_raw, /left_velodyne/points_raw, /right_velodyne/points_raw]" />
+        <arg name="output_topic" default="/points_concat_raw" />
+        <arg name="output_frame_id" default="top_velodyne_link" />
+    </include>
+
     <!-- points densifier -->
     <include file="$(find points_densifier)/launch/points_densifier.launch">
-        <arg name="input_topic" default="/top_velodyne/points_raw" />
+        <arg name="input_topic" default="/points_concat_raw" />
         <arg name="output_topic" default="/points_densified" />
         <arg name="history_num" default="4" />
         <arg name="remove_backward_points" default="true"/>

@@ -68,7 +68,7 @@ void PointsDensifier::pointcloud_callback(const PointCloudMsgT::ConstPtr &msg) {
                 int count = 0;
                 for (int j = 0; j < (int)cloud_converted->points.size(); j++) {
                 // for (auto &pc : cloud_history) {
-                    if (cloud_converted->points[j].x < 0) {
+                    if (cloud_converted->points[j].x < 0 || (cloud_converted->points[j].x < 5 && cloud_converted->points[j].y < 2 && cloud_converted->points[j].y > -2)) {
                         cloud_history[i]->points.erase(cloud_history[i]->points.begin() + j - count);  // 消した分indexずれるので調整
                         count++;
                     }
