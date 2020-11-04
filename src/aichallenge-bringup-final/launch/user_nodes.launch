@@ -229,7 +229,7 @@
         <arg name="multi_lane_csv" default="$(find aichallenge_bringup)/data/saved_waypoints.csv"/>
         <arg name="load_csv" default="true"/>
         <arg name="replanning_mode" default="true" />
-        <arg name="accel_limit" default="10.0" />
+        <arg name="accel_limit" default="100.0" />
         <arg name="decel_limit" default="100.0" />
         <arg name="velocity_max" default="30.0" />
     </include>
@@ -246,7 +246,7 @@
         <arg name="detection_height_top" default="0.2" />
         <arg name="detection_height_bottom" default="-1.7" />
         <arg name="deceleration_obstacle" default="1.0" />
-        <arg name="velocity_change_limit" default="30" />
+        <arg name="velocity_change_limit" default="60" />
         <arg name="deceleration_range" default="0" />
         <arg name="temporal_waypoints_size" default="100" />
     </include>
@@ -268,8 +268,8 @@
     <node type="rosservice" name="fast_pure_pursuit_log_killer" pkg="rosservice" args="call /fast_pure_pursuit/set_logger_level ros.fast_pure_pursuit ERROR" />
 
     <!-- rviz: TODO remove these lines below before submitting the online evaluator -->
-    <!-- <include file="$(find aichallenge_bringup)/launch/_visualizer.launch"/>
-    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aichallenge_bringup)/data/aichallenge.rviz" /> -->
+    <include file="$(find aichallenge_bringup)/launch/_visualizer.launch"/>
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aichallenge_bringup)/data/aichallenge.rviz" />
     
     <node pkg="rostopic" type="rostopic" name="score_getter" args="echo /aichalle/score " output="screen"/>
     <!-- <node type="rosservice" name="costmap_generator_lanelet2_log_killer" pkg="rosservice" args="call /costmap_generator_lanelet2/set_logger_level ros.costmap_generator WARN" /> -->
