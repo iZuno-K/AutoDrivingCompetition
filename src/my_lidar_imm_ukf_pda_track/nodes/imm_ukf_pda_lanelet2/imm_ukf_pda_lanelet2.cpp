@@ -564,7 +564,15 @@ void ImmUkfPdaLanelet2::staticClassification()
       }
       avg_vel = static_cast<double>(sum_vel / param_.static_num_history_threshold_);
 
-      if (avg_vel < param_.static_velocity_threshold_ && current_velocity < param_.static_velocity_threshold_)
+      float person_threshold = 0.05;
+      if (tracking_targets_[i].object_.label == "person" || tracking_targets_[i].object_.label == "pedestrian") {
+        if (avg_vel < person_threshold && current_velocity < person_threshold)
+        {
+          ROS_INFO("[%s] Detected Person is Staisc.", __APP_NAME__);
+          tracking_targets_[i].is_static_ = true;
+        }
+      }
+      else if (avg_vel < param_.static_velocity_threshold_ && current_velocity < param_.static_velocity_threshold_)
       {
         tracking_targets_[i].is_static_ = true;
       }

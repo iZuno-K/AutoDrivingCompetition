@@ -68,7 +68,7 @@ void NaiveMotionPredict::makePrediction(const autoware_msgs::DetectedObject& obj
   initializeROSmarker(object.header, object.pose.position, object.id, predicted_line);
   int tmp_num_prediction = num_prediction_;
   if (object.label == "human" || object.label == "pedestrian" || object.label == "person") {
-    tmp_num_prediction = num_prediction_ * 10;
+    tmp_num_prediction = num_prediction_ * 30;
   }
   for (int ith_prediction = 0; ith_prediction < tmp_num_prediction; ith_prediction++)
   {
@@ -77,7 +77,8 @@ void NaiveMotionPredict::makePrediction(const autoware_msgs::DetectedObject& obj
       predicted_object.score = MAX_PREDICTION_SCORE_;
     }
     else {
-      predicted_object.score = (-1/(interval_sec_*num_prediction_))*ith_prediction*interval_sec_ + MAX_PREDICTION_SCORE_;
+      predicted_object.score = MAX_PREDICTION_SCORE_ / 2.0;
+      // predicted_object.score = (-1/(interval_sec_*num_prediction_))*ith_prediction*interval_sec_ + MAX_PREDICTION_SCORE_;
     }
     predicted_objects_vec.push_back(predicted_object);
     target_object = predicted_object;

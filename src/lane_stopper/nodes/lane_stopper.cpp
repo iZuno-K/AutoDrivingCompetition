@@ -257,7 +257,7 @@ void LaneStopper::modify_vehicle_cmd() {
 
   // ROS_INFO("[%s]: target velocity   %lf,   current velocity   %lf", __APP_NAME__, vehicle_cmd_msg_.ctrl_cmd.linear_velocity, current_linear_velocity_);
   // accel GAINの調整
-  double thresh_vel = 1.0;  //m/s max 8.3?? 
+  double thresh_vel = 1.35;  //m/s max 8.3?? 
   if (is_velocity_set_) {
     // If the velocity at the next call will exceed 30 m/s, 
     // or the diff between target vel. and current vel. is less than 'thresh_vel', and
@@ -267,10 +267,15 @@ void LaneStopper::modify_vehicle_cmd() {
     // if (current_linear_velocity_ * duration.toSec() + 0.5 * filtered_accel_ * duration.toSec() * duration.toSec() > vehicle_cmd_msg_.ctrl_cmd.linear_velocity &&
     //     vehicle_cmd_msg_.ctrl_cmd.linear_velocity - current_linear_velocity_ < thresh_vel && 
     //     accel > 0) {
-    if (current_linear_velocity_ + filtered_accel_ * duration.toSec() > vehicle_cmd_msg_.ctrl_cmd.linear_velocity - thresh_vel &&
-        accel > 0) {
-      // vehicle_cmd_msg_.ctrl_cmd.linear_acceleration /= accel_divide_gain_;
+    if (vehicle_cmd_msg_.ctrl_cmd.linear_velocity > 15.0 / 3.6) {
+      if (current_linear_velocity_ > 15.0 / 3.6 && current_linear_velocity_ + filtered_accel_ * duration.toSec() > vehicle_cmd_msg_.ctrl_cmd.linear_velocity - thresh_vel && accel > 0) {
       vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = 0.0125;
+      }
+    }
+    else {
+      if (current_linear_velocity_ > 10.0 / 3.6 && current_linear_velocity_ + filtered_accel_ * duration.toSec() > vehicle_cmd_msg_.ctrl_cmd.linear_velocity - thresh_vel && accel > 0) {
+        vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = 0.0125;
+      }
     }
   }
 
