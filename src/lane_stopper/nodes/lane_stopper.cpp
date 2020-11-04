@@ -258,7 +258,7 @@ void LaneStopper::modify_vehicle_cmd() {
 
   // ROS_INFO("[%s]: target velocity   %lf,   current velocity   %lf", __APP_NAME__, vehicle_cmd_msg_.ctrl_cmd.linear_velocity, current_linear_velocity_);
   // accel GAINの調整
-  double thresh_vel = 1.35;  //m/s max 8.3?? 
+  double thresh_vel = 1.5;  //m/s max 8.3?? 
   if (is_velocity_set_) {
     // If the velocity at the next call will exceed 30 m/s, 
     // or the diff between target vel. and current vel. is less than 'thresh_vel', and
@@ -283,8 +283,8 @@ void LaneStopper::modify_vehicle_cmd() {
   // START 交差点時のcmd処理 ===================================================================
   // emergent brake
   if (brake_flag_) {
-    vehicle_cmd_msg_.ctrl_cmd.linear_velocity = -10.0;
-    vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = -10.0;
+    vehicle_cmd_msg_.ctrl_cmd.linear_velocity = -1000.0;
+    vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = -1000.0;
   }
   else {
     // 交差点に侵入ずみで、brake_flag立ってなければさっさと渡りきる

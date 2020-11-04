@@ -564,7 +564,7 @@ void ImmUkfPdaLanelet2::staticClassification()
       }
       avg_vel = static_cast<double>(sum_vel / param_.static_num_history_threshold_);
 
-      float person_threshold = 0.05;
+      float person_threshold = 0.01;
       if (tracking_targets_[i].object_.label == "person" || tracking_targets_[i].object_.label == "pedestrian") {
         if (avg_vel < person_threshold && current_velocity < person_threshold)
         {
