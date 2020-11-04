@@ -5,7 +5,7 @@
 // 障害物検知しないとbrake flagが更新されないので、その対策 
 bool LaneStopper::poseDontCareLane(const geometry_msgs::PoseStamped& msg) {
     geometry_msgs::Point p = msg.pose.position;
-    if (a[1] * p.x + b[1] < p.y) return true;
+    if (a[2] * p.x + b[2] < p.y) return true;
     else return false;
 }
 
@@ -154,6 +154,7 @@ autoware_msgs::ControlCommandStamped LaneStopper::lateralLimitCtrl(const autowar
 
 bool LaneStopper::stopIntersection(const autoware_msgs::DetectedObjectArray &input, const geometry_msgs::PoseStamped& mycarpose) {
   if (!dont_care_lane_) {
+    ROS_INFO("[%s] Subscribe ok", __APP_NAME__);
     try {
           tf::StampedTransform convertMatrix;
           tf_listener_.waitForTransform("map", input.header.frame_id, ros::Time(0), ros::Duration(1.0));
@@ -222,7 +223,7 @@ void LaneStopper::callbackFromPose(const geometry_msgs::PoseStamped::ConstPtr& m
   is_in_intersection2_ = inIntersection2(*mycarpose);
   is_me_in_incomming_lane_ = poseInIncomingLane(*mycarpose);
   dont_care_lane_ = poseDontCareLane(*mycarpose);
-  if (dont_care_lane_) brake_flag_ = true;  // 交差点抜けたら強制的にbrake_flag解除
+  if (dont_care_lane_) brake_flag_ = false;  // 交差点抜けたら強制的にbrake_flag解除
 }
 
 void LaneStopper::reset_vehicle_cmd_msg() {
@@ -374,7 +375,7 @@ void LaneStopper::run() {
 
     ctrl_cmd_sub_ = node_handle_.subscribe("ctrl_raw", 1, &LaneStopper::CtrlCmdCallback, this);
     velocity_sub_ = node_handle_.subscribe("odom", 1, &LaneStopper::callbackFromOdom, this);
-    pose_sub_ = node_handle_.subscribe("curren_pose", 1, &LaneStopper::callbackFromPose, this);
+    pose_sub_ = node_handle_.subscribe("current_pose", 1, &LaneStopper::callbackFromPose, this);
 
     bool_publisher = node_handle_.advertise<std_msgs::Bool>("/brake_flag", 10); // to avoid miss subscription
     vehicle_cmd_pub = node_handle_.advertise<autoware_msgs::VehicleCmd>("/vehicle_cmd", 1, true);

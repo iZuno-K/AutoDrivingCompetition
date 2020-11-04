@@ -185,15 +185,15 @@
         <arg name="expand_polygon_size" default="1.1" />
         <arg name="grid_resolution" default="0.4" />
         <arg name="grid_length_x" default="50" />
-        <arg name="grid_length_y" default="20" />
+        <arg name="grid_length_y" default="30" />
         <arg name="use_wayarea" default="true" />
     </include>
     <!-- Astar planning -->
     <include file="$(find waypoint_planner)/launch/astar_avoid.launch">
         <arg name="enable_avoidance" default="true" />
         <arg name="avoid_start_velocity" default="30.0" />
-        <arg name="search_waypoints_delta" default="4" />
-        <arg name="search_waypoints_size" default="50" />
+        <arg name="search_waypoints_delta" default="2" />
+        <arg name="search_waypoints_size" default="40" />
         <arg name="avoid_waypoints_velocity" default="20.0" />
         <arg name="obstacle_threshold" default="40" />
     </include>
