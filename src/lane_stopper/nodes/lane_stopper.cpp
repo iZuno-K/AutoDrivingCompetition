@@ -2,6 +2,13 @@
 #define __APP_NAME__ "lane_stopper"
 
 
+// 障害物検知しないとbrake flagが更新されないので、その対策 
+bool LaneStopper::poseDontCareLane(const geometry_msgs::PoseStamped& msg) {
+    geometry_msgs::Point p = msg.pose.position;
+    if (a[1] * p.x + b[1] < p.y) return true;
+    else return false;
+}
+
 bool LaneStopper::objectInIncomingLane(const autoware_msgs::DetectedObject &object) {
     double x, y;
     x = object.pose.position.x;
@@ -146,48 +153,50 @@ autoware_msgs::ControlCommandStamped LaneStopper::lateralLimitCtrl(const autowar
 // END ========================================================================
 
 bool LaneStopper::stopIntersection(const autoware_msgs::DetectedObjectArray &input, const geometry_msgs::PoseStamped& mycarpose) {
+  if (!dont_care_lane_) {
     try {
-        tf::StampedTransform convertMatrix;
-        tf_listener_.waitForTransform("map", input.header.frame_id, ros::Time(0), ros::Duration(1.0));
-        tf_listener_.lookupTransform("map", input.header.frame_id, ros::Time(0), convertMatrix);
+          tf::StampedTransform convertMatrix;
+          tf_listener_.waitForTransform("map", input.header.frame_id, ros::Time(0), ros::Duration(1.0));
+          tf_listener_.lookupTransform("map", input.header.frame_id, ros::Time(0), convertMatrix);
 
-        for (size_t i = 0; i < input.objects.size(); i++) {
-            autoware_msgs::DetectedObject obj = input.objects[i];
-            tf::Transform tmp;
-            tf::poseMsgToTF(obj.pose, tmp);
-            tf::poseTFToMsg(convertMatrix * tmp, obj.pose);
-            // 対向車線に車がいたら　
-            if (objectInIncomingLane(obj)) {
-                ROS_INFO("[%s] Object in the incomming lane.", __APP_NAME__);
-                // 自車が交差点1にいるとき
-                is_in_intersection1_ = inIntersection1(mycarpose);
-                if (is_in_intersection1_) {
-                    if (objectIncomingIntersection1(obj)) {
-                        if (dist(obj.pose, mycarpose.pose) < stop_distance_) {
-                            // make_stop_waypoints();
-                            ROS_ERROR("[%s] Stop at Intersection1.", __APP_NAME__);
-                            return true;
-                        }
-                    }
-                }
-                // 自車が交差点2にいるとき
-                is_in_intersection2_ = inIntersection2(mycarpose);
-                if (is_in_intersection2_) {
-                    // 対向車線上の避けるべきいちに対向車がきていたら
-                    if (objectIncomingIntersection2(obj)) {
-                        if (dist(obj.pose, mycarpose.pose) < stop_distance_) {
-                            // make_stop_waypoints();
-                            ROS_ERROR("[%s] Stop at Intersection2.", __APP_NAME__);
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    catch (tf::TransformException &ex) {
-        ROS_WARN("[%s] %s", __APP_NAME__, ex.what());
-        return false;
+          for (size_t i = 0; i < input.objects.size(); i++) {
+              autoware_msgs::DetectedObject obj = input.objects[i];
+              tf::Transform tmp;
+              tf::poseMsgToTF(obj.pose, tmp);
+              tf::poseTFToMsg(convertMatrix * tmp, obj.pose);
+              // 対向車線に車がいたら　
+              if (objectInIncomingLane(obj)) {
+                  ROS_INFO("[%s] Object in the incomming lane.", __APP_NAME__);
+                  // 自車が交差点1にいるとき
+                  is_in_intersection1_ = inIntersection1(mycarpose);
+                  if (is_in_intersection1_) {
+                      if (objectIncomingIntersection1(obj)) {
+                          if (dist(obj.pose, mycarpose.pose) < stop_distance_) {
+                              // make_stop_waypoints();
+                              ROS_ERROR("[%s] Stop at Intersection1.", __APP_NAME__);
+                              return true;
+                          }
+                      }
+                  }
+                  // 自車が交差点2にいるとき
+                  is_in_intersection2_ = inIntersection2(mycarpose);
+                  if (is_in_intersection2_) {
+                      // 対向車線上の避けるべきいちに対向車がきていたら
+                      if (objectIncomingIntersection2(obj)) {
+                          if (dist(obj.pose, mycarpose.pose) < stop_distance_) {
+                              // make_stop_waypoints();
+                              ROS_ERROR("[%s] Stop at Intersection2.", __APP_NAME__);
+                              return true;
+                          }
+                      }
+                  }
+              }
+          }
+      }
+      catch (tf::TransformException &ex) {
+          ROS_WARN("[%s] %s", __APP_NAME__, ex.what());
+          return false;
+      }
     }
     return false;
 }
@@ -212,6 +221,8 @@ void LaneStopper::callbackFromPose(const geometry_msgs::PoseStamped::ConstPtr& m
   is_in_intersection1_ = inIntersection1(*mycarpose);
   is_in_intersection2_ = inIntersection2(*mycarpose);
   is_me_in_incomming_lane_ = poseInIncomingLane(*mycarpose);
+  dont_care_lane_ = poseDontCareLane(*mycarpose);
+  if (dont_care_lane_) brake_flag_ = true;  // 交差点抜けたら強制的にbrake_flag解除
 }
 
 void LaneStopper::reset_vehicle_cmd_msg() {
@@ -233,6 +244,7 @@ void LaneStopper::reset_vehicle_cmd_msg() {
 void LaneStopper::modify_vehicle_cmd() {
   // limit accel
   double accel, steer;
+  ros::Duration duration= ros::Time::now() - previous_time;
   accel = vehicle_cmd_msg_.ctrl_cmd.linear_acceleration;
   steer = vehicle_cmd_msg_.ctrl_cmd.steering_angle;
   
@@ -243,12 +255,22 @@ void LaneStopper::modify_vehicle_cmd() {
   vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = filtered_accel_;
   vehicle_cmd_msg_.ctrl_cmd.steering_angle = filtered_steer_;
 
+  // ROS_INFO("[%s]: target velocity   %lf,   current velocity   %lf", __APP_NAME__, vehicle_cmd_msg_.ctrl_cmd.linear_velocity, current_linear_velocity_);
   // accel GAINの調整
-  accel = vehicle_cmd_msg_.ctrl_cmd.linear_acceleration;
-  double thresh_vel = 5.0;  //m/s
+  double thresh_vel = 1.0;  //m/s max 8.3?? 
   if (is_velocity_set_) {
-    if (current_linear_velocity_ > thresh_vel) {
-      accel /= accel_divide_gain_;
+    // If the velocity at the next call will exceed 30 m/s, 
+    // or the diff between target vel. and current vel. is less than 'thresh_vel', and
+    // accel > 0, 
+    // send a command to vehicle_cmd_msg_ 'set an acecel 0.'
+    
+    // if (current_linear_velocity_ * duration.toSec() + 0.5 * filtered_accel_ * duration.toSec() * duration.toSec() > vehicle_cmd_msg_.ctrl_cmd.linear_velocity &&
+    //     vehicle_cmd_msg_.ctrl_cmd.linear_velocity - current_linear_velocity_ < thresh_vel && 
+    //     accel > 0) {
+    if (current_linear_velocity_ + filtered_accel_ * duration.toSec() > vehicle_cmd_msg_.ctrl_cmd.linear_velocity - thresh_vel &&
+        accel > 0) {
+      // vehicle_cmd_msg_.ctrl_cmd.linear_acceleration /= accel_divide_gain_;
+      vehicle_cmd_msg_.ctrl_cmd.linear_acceleration = 0.0125;
     }
   }
 
@@ -269,6 +291,9 @@ void LaneStopper::modify_vehicle_cmd() {
     }
   }
   // END 交差点時のcmd処理 ===================================================================
+
+  // update time.
+  previous_time = ros::Time::now();
 }
 
 
@@ -311,7 +336,7 @@ void LaneStopper::publish_vehicle_cmd() {
 
 LaneStopper::LaneStopper() : node_handle_(), private_node_handle_("~"), tf_listener_(), brake_flag_(false), 
 filtered_accel_(0.0), filtered_steer_(0.0), health_checker_(node_handle_, private_node_handle_), flag_activate_(false),
-is_in_intersection1_(false), is_in_intersection2_(false), is_me_in_incomming_lane_(false),
+is_in_intersection1_(false), is_in_intersection2_(false), is_me_in_incomming_lane_(false), dont_care_lane_(true),
 current_linear_velocity_(0.0), is_velocity_set_(false) {
     private_node_handle_.param("stop_distance", stop_distance_, 20.0);
     private_node_handle_.param("objects_topic", objects_topic_, std::string("/detection/lidar_detector/objects"));
@@ -330,6 +355,7 @@ current_linear_velocity_(0.0), is_velocity_set_(false) {
     private_node_handle_.param("initial_wait_time", initial_wait_time_, 50.0);
     private_node_handle_.param("intersection_force_accel", intersection_force_accel_, 0.4f);
     start_time_ = time(NULL);
+    previous_time = ros::Time::now();
 
     LaneStopper::reset_vehicle_cmd_msg();
     health_checker_.ENABLE();

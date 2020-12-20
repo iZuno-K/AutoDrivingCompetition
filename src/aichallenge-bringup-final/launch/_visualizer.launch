@@ -8,10 +8,10 @@
     <param name="object_src" value="/detection/image_detector/objects"/> 
   </node>
 
-  <!-- vialize pc concatinated between points pillar and pc in bbox -->
-  <!-- <node pkg="detected_objects_visualizer" type="visualize_detected_objects" name="point_pillars_visualization_01" output="screen" ns="/detection/lidar_detector" >
-    <remap from="/detection/lidar_detector/objects" to="/detection/lidar_detector/concat" />
-  </node> -->
+  <!-- vialize point cloud detection -->
+  <node pkg="detected_objects_visualizer" type="visualize_detected_objects" name="point_pillars_visualization_01" output="screen" ns="/detection/lidar_detector" >
+    <!-- <remap from="/detection/lidar_detector/objects" to="/detection/lidar_detector/concat" /> -->
+  </node>
 
   <!-- euclidean clustering -->
   <arg name="use_vector_map1" default="true"/>

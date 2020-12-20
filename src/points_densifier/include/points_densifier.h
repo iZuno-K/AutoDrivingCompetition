@@ -53,6 +53,7 @@ private:
   int index_;
   int max_index_;
   int history_num_;
+  bool remove_backward_flag_;
 
   void pointcloud_callback(const PointCloudMsgT::ConstPtr &msg1);
 };
