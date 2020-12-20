@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<launch>
+   <!-- Downsample pub:/filtered_points -->
+    <include file="$(find mypoints_downsampler)/launch/points_downsample.launch">
+        <arg name="node_name" default="voxel_grid_filter" />
+        <arg name="points_topic" default="/top_velodyne/points_raw" />
+        <arg name="output_log" default="false" />
+        <arg name="measurement_range" default="80" />
+        <arg name="min_measurement_range" default="3" />
+        <arg name="voxel_leaf_size" default="0.1"/>
+    </include>
+
+    <!-- ToDo : modify launch files and add ROS nodes developed by you -->
+    <include file="$(find lidar_localizer)/launch/ndt_matching.launch">
+        <arg name="method_type" default="3"/>
+        <arg name="use_odom" default="false"/>
+        <arg name="imu_upside_down" default="false"/>
+        <arg name="imu_topic" default="/imu_raw"/>
+        <arg name="get_height" default="true"/>
+    </include>
+
+    <include file="$(find lane_planner)/launch/lane_rule_option.launch"/>
+    <include file="$(find lane_planner)/launch/lane_select.launch"/>
+    <node pkg="lane_planner" type="lane_stop" name="lane_stop"/>
+    <include file="$(find autoware_connector)/launch/vel_pose_connect.launch">
+        <arg name="topic_pose_stamped" default="/ndt_pose"/>
+        <arg name="topic_twist_stamped" default="/estimate_twist"/>
+    </include>
+
+    <!-- points densifier -->
+    <include file="$(find points_densifier)/launch/points_densifier.launch">
+        <arg name="input_topic" default="/top_velodyne/points_raw" />
+        <arg name="output_topic" default="/points_densified" />
+        <arg name="history_num" default="4" />
+        <arg name="remove_backward_points" default="true"/>
+    </include>
+
+
+
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aichallenge_bringup)/data/aichallenge.rviz" />
+</launch>

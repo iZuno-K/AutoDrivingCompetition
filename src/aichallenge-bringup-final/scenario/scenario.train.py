@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# coding: utf-8
 
 import os
 import lgsvl
@@ -39,7 +40,6 @@ def add_ego_car():
     state.transform = spawns[0]
     a = sim.add_agent(vehicle_name,
                       lgsvl.AgentType.EGO, state)
-
     a.connect_bridge(args.bridge, 9090)
     print("Waiting for connection...")
     while not a.bridge_connected:
@@ -49,6 +49,7 @@ def add_ego_car():
     return a
 
 def get_ground_point(spawn_id, offset):
+    # not redefine spawns
     forward_offset, right_offset = offset
 
     forward = lgsvl.utils.transform_to_forward(spawns[spawn_id])
@@ -58,6 +59,7 @@ def get_ground_point(spawn_id, offset):
     return project(spawns[spawn_id].position + forward_offset * forward + right_offset * right + 5 * up)
 
 def get_angle(spawn_id, offset):
+    # not redefine spawns
     rotation = spawns[spawn_id].rotation
     angle = copy.deepcopy(rotation)
     angle.y += offset
@@ -71,6 +73,7 @@ def add_line_loop_car_with_trigger(car_type, spawn_id, offsets, trigger_distance
     3. back to the offsets[0] through the underground of offsets[n-1] -> that of offset[0]
     4. play again from 2
     """
+    # not redefine spawns
     rotation = spawns[spawn_id].rotation
     angle = copy.deepcopy(rotation)
     angle.y += angle_offset
@@ -109,6 +112,7 @@ def add_line_loop_car_with_underground_trigger(car_type, spawn_id, trigger_offse
     3. back to the offsets[0] through the underground of offsets[n-1] -> that of offset[0]
     4. play again from 2
     """
+    # not redefine spawns
     rotation = spawns[spawn_id].rotation
     angle = copy.deepcopy(rotation)
     angle.y += angle_offset

@@ -4,3 +4,9 @@
 /log/
 tmp.txt
 *.svg
+*.weights
+*.gv
+*.pdf
+*.onnx
+/create-tar-file.sh
+*.tar.gz

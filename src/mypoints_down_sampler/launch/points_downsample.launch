@@ -5,12 +5,16 @@
   <arg name="output_log" default="false" />
   <arg name="measurement_range" default="200" />
   <arg name="min_measurement_range" default="0" />
+  <arg name="voxel_leaf_size" default="2.0"/>
+  <arg name="pub_name" default="/filtered_points"/>
 
-  <node pkg="mypoints_downsampler" name="$(arg node_name)" type="$(arg node_name)">
+  <node pkg="mypoints_downsampler" name="$(arg node_name)" type="voxel_grid_filter">
     <param name="points_topic" value="$(arg points_topic)" />
     <remap from="/points_raw" to="/sync_drivers/points_raw" if="$(arg sync)" />
     <param name="output_log" value="$(arg output_log)" />
     <param name="measurement_range" value="$(arg measurement_range)" />
     <param name="min_measurement_range" value="$(arg min_measurement_range)" />
+    <param name="voxel_leaf_size" value="$(arg voxel_leaf_size)"/>
+    <remap from="/filtered_points" to="$(arg pub_name)"/>
   </node>
 </launch>
