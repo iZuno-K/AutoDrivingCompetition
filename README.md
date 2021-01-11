@@ -1,4 +1,4 @@
-# AutoDrivingCompetition
+# Automated Driving Competition
 https://www.jsae.or.jp/jaaic/index.html
 
 ## Demo movie
